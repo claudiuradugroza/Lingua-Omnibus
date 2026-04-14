@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lingua Omnibus — Technical Specification v4.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+    <style>
+        /* ========== STILURILE EXISTENTE (neschimbate) ========== */
+        :root {
+            --ink: #141820;
+            --paper: #f5f4f1;
+            --card: #fafaf8;
+            --accent: #2c5282;
+            --accent-soft: #4a7fb5;
+            --accent2: #2d6a4f;
+            --accent3: #8b3a1e;
+            --border: #e2ddd6;
+            --border-dark: #c8c2b8;
+            --muted: #7a7165;
+            --muted-light: #a89f94;
+            --code-bg: #eef1f7;
+            --shadow: rgba(20, 24, 32, 0.08);
+            --shadow-lg: rgba(20, 24, 32, 0.14);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'IBM Plex Sans', system-ui, sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.72;
+            overflow-x: hidden;
+        }
+        .lang-switcher-bar {
+            background: var(--ink);
+            padding: 0.4rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        .lang-switcher-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            color: #6b7a90;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-right: 0.5rem;
+        }
+        .ls-btn {
+            background: none;
+            border: 1px solid #2e3a50;
+            color: #8a9ab8;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            padding: 0.22rem 0.65rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.05em;
+        }
+        .ls-btn:hover { border-color: #4a6a99; color: #a8bcd8; }
+        .ls-btn.active {
+            background: #2c3f60;
+            border-color: #4a6a99;
+            color: #c8d8f0;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(245, 244, 241, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            white-space: nowrap;
+            font-weight: 700;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.4rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+            transition: color 0.15s;
+        }
+        .nav-links a:hover { color: var(--accent); }
+        .nav-right { margin-left: auto; }
+        .badge-v {
+            background: var(--accent);
+            color: white;
+            font-size: 0.68rem;
+            font-family: 'IBM Plex Mono', monospace;
+            padding: 0.22rem 0.65rem;
+            border-radius: 4px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 5rem 3rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(44, 82, 130, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(44, 82, 130, 0.045) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: radial-gradient(ellipse 80% 65% at 50% 50%, black, transparent);
+        }
+        .hero-eyebrow {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-soft);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .hero-eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 2.5rem;
+            height: 1px;
+            background: var(--accent-soft);
+        }
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 7.5vw, 6.5rem);
+            line-height: 1.04;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            margin-bottom: 1.2rem;
+            max-width: 880px;
+        }
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .hero-sub {
+            font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+            line-height: 1.7;
+        }
+        .hero-tags {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        .hero-tag {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.3rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--ink);
+        }
+        .hero-tag.q  { border-color: #7a9ec8; color: #2c4a72; background: #eef4fc; }
+        .hero-tag.db { border-color: #6aaa86; color: #1a5038; background: #eef8f2; }
+        .hero-tag.ml { border-color: #b8825a; color: #5a2a10; background: #faf2ec; }
+        .hero-stats { display: flex; gap: 3rem; }
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
+            color: var(--ink);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--muted-light);
+            margin-top: 0.25rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .marquee-wrap {
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+            padding: 0.7rem 0;
+            background: var(--card);
+        }
+        .marquee-inner {
+            display: flex;
+            gap: 3rem;
+            animation: marquee 28s linear infinite;
+            white-space: nowrap;
+        }
+        .marquee-inner:hover { animation-play-state: paused; }
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .marquee-item {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .marquee-item .kw { color: var(--accent); font-weight: 500; }
+        .marquee-sep { color: var(--border-dark); }
+        .wrap { max-width: 1280px; margin: 0 auto; padding: 0 3rem; }
+        section { padding: 5rem 0; border-top: 1px solid var(--border); }
+        .sec-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted-light);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        h2.sec-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            line-height: 1.12;
+            letter-spacing: -0.01em;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+        }
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin: 2.5rem 0 0.7rem;
+        }
+        p { margin-bottom: 1.2rem; color: #3a3228; }
+        ul, ol { padding-left: 1.6rem; margin-bottom: 1.2rem; }
+        li { margin-bottom: 0.4rem; color: #3a3228; }
+        pre, .arch-block {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.83rem;
+            line-height: 1.7;
+            border-radius: 10px;
+            margin: 1.8rem 0;
+            overflow-x: auto;
+        }
+        pre {
+            background: #131a28;
+            color: #d8e4f0;
+            padding: 1.8rem 2rem;
+            border: 1px solid #1e2d45;
+        }
+        .pre-light {
+            background: var(--code-bg);
+            color: var(--ink);
+            border: 1px solid var(--border);
+        }
+        .arch-block {
+            background: #0a1220;
+            color: #b8ccE0;
+            padding: 2rem 2.5rem;
+            white-space: pre;
+            box-shadow: inset 0 0 0 1px #1a2a3a;
+        }
+        .kw  { color: #7ab8f5; }
+        .fn  { color: #c4a0f0; }
+        .str { color: #98c8a8; }
+        .num { color: #e8c87a; }
+        .cm  { color: #5a7088; font-style: italic; }
+        .typ { color: #f0a878; }
+        .op  { color: #80ccee; }
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--code-bg);
+            border: 1px solid #d4d0c8;
+            border-radius: 4px;
+            padding: 0.12rem 0.42rem;
+            font-size: 0.86em;
+            color: var(--accent3);
+        }
+        .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .four-col  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.8rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            border-color: var(--accent-soft);
+            box-shadow: 0 6px 20px -6px var(--shadow-lg);
+        }
+        .card-icon { font-size: 1.6rem; margin-bottom: 0.8rem; }
+        .card h4 { font-size: 0.98rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ink); }
+        .card p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        th {
+            background: var(--ink);
+            color: #d8e0ec;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 11px 16px;
+            text-align: left;
+        }
+        td { padding: 11px 16px; border-bottom: 1px solid var(--border); background: var(--card); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f0ede8; }
+        .note {
+            background: #eef4fc;
+            border-left: 3px solid var(--accent);
+            border-radius: 0 10px 10px 0;
+            padding: 1.1rem 1.6rem;
+            margin: 1.6rem 0;
+        }
+        .warn {
+            background: #fef9ee;
+            border-left: 3px solid #c89030;
+            border-radius: 0 10px 10px 0;
+            padding: 1.1rem 1.6rem;
+            margin: 1.6rem 0;
+        }
+        .success-block {
+            background: #edf8f2;
+            border-left: 3px solid var(--accent2);
+            border-radius: 0 10px 10px 0;
+            padding: 1.1rem 1.6rem;
+            margin: 1.6rem 0;
+        }
+        .lang-pill {
+            display: inline-block;
+            background: #f0ede8;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.12rem 0.6rem;
+            font-size: 0.74rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 0.2rem;
+        }
+        .arch-layer {
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 1.3rem 1.8rem;
+            margin: 0.5rem 0;
+            background: var(--card);
+            transition: all 0.2s;
+        }
+        .arch-layer:hover { border-color: var(--accent-soft); }
+        .arch-layer-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted-light);
+            margin-bottom: 0.5rem;
+        }
+        .arch-layer-title { font-weight: 600; font-size: 1rem; color: var(--ink); }
+        .arch-arrow { text-align: center; color: var(--accent-soft); font-size: 1.2rem; margin: 0.3rem 0; }
+        .arch-layer.L1 { border-color: #7a9ec8; background: #f4f8fd; }
+        .arch-layer.L2 { border-color: #6aaa86; background: #f2faf5; }
+        .arch-layer.L3 { border-color: #b8825a; background: #faf4ef; }
+        .quant-box {
+            background: #080f1c;
+            border-radius: 12px;
+            padding: 1.8rem;
+            color: #9abcd8;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.83rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .quant-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 55% 35% at 80% 20%, rgba(44,82,130,0.1), transparent);
+            pointer-events: none;
+        }
+        .quant-title {
+            color: #6a9ed8;
+            font-size: 0.68rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid #152030;
+            padding-bottom: 0.7rem;
+        }
+        .qubit-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 0.5rem 0;
+        }
+        .qubit-label { min-width: 3rem; color: #6888a0; }
+        .gate {
+            width: 2rem; height: 2rem;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .gate.h  { background: #1a3a6a; color: #7aacf0; border: 1px solid #2a5088; }
+        .gate.cx { background: #1a3a6a; color: #7aacf0; border: 1px solid #2a5088; font-size: 1rem; }
+        .gate.ry { background: #2a2a48; color: #c0a8f0; border: 1px solid #3a3a68; }
+        .gate.m  { background: #1a3826; color: #70c890; border: 1px solid #2a5836; }
+        .wire { height: 2px; background: #1e3048; flex: 1; }
+        .timeline { border-left: 2px solid var(--border); padding-left: 2rem; margin-top: 1rem; }
+        .tl-item { position: relative; margin-bottom: 2.5rem; }
+        .tl-item::before {
+            content: '';
+            position: absolute;
+            left: -2.35rem;
+            top: 0.55rem;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--paper);
+        }
+        .tl-phase {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--accent-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+        .tl-title { font-weight: 600; font-size: 0.98rem; margin-bottom: 0.4rem; }
+        .tl-desc { font-size: 0.88rem; color: var(--muted); }
+        .playground {
+            background: #0d1524;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #1c2d45;
+        }
+        .pg-bar {
+            background: #091018;
+            padding: 0.85rem 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid #1c2d45;
+        }
+        .pg-dots { display: flex; gap: 0.4rem; }
+        .pg-dot { width: 9px; height: 9px; border-radius: 50%; }
+        .pg-dot.r { background: #d8544a; }
+        .pg-dot.y { background: #d8a030; }
+        .pg-dot.g { background: #3aaa50; }
+        .pg-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: #4a6888; }
+        .pg-lang-select { margin-left: auto; display: flex; gap: 0.4rem; }
+        .pg-lang-btn {
+            background: none;
+            border: 1px solid #1e3050;
+            color: #4a6888;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            padding: 0.18rem 0.65rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pg-lang-btn.active, .pg-lang-btn:hover {
+            border-color: #3a6098;
+            color: #7ab0e8;
+            background: #0a1828;
+        }
+        .pg-body { display: grid; grid-template-columns: 1fr 1fr; }
+        .pg-code {
+            padding: 1.6rem 1.8rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: #b8cce0;
+            border-right: 1px solid #1c2d45;
+            white-space: pre-wrap;
+            min-height: 260px;
+        }
+        .pg-output { padding: 1.6rem 1.8rem; }
+        .pg-output-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.66rem;
+            color: #2a5068;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.8rem;
+        }
+        .pg-output-line { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: #88b898; margin-bottom: 0.3rem; }
+        .pg-output-line.info { color: #6a9ed8; }
+        .pg-output-line.warn { color: #d8b858; }
+        .vs-table td:first-child { font-weight: 600; }
+        .yes { color: #1a7848; font-weight: 700; }
+        .no  { color: #9a4020; }
+        .partial { color: #907030; }
+        .principle-row {
+            display: flex;
+            gap: 1.4rem;
+            align-items: flex-start;
+            margin-bottom: 1.8rem;
+        }
+        .principle-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #d8d0c8;
+            line-height: 1;
+            min-width: 2.2rem;
+        }
+        .principle-body strong { display: block; font-size: 0.98rem; margin-bottom: 0.35rem; }
+        .principle-body p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+        .syntax-grid {
+            background: #0d1524;
+            border-radius: 14px;
+            overflow: hidden;
+            margin: 2rem 0;
+            border: 1px solid #1c2d45;
+        }
+        .syntax-header {
+            background: #091018;
+            padding: 0.9rem 1.4rem;
+            border-bottom: 1px solid #1c2d45;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.72rem;
+            color: #4a6888;
+        }
+        .syntax-cells {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .syntax-cell {
+            padding: 1.4rem 1.6rem;
+            border-right: 1px solid #1c2d45;
+        }
+        .syntax-cell:last-child { border-right: none; }
+        .syntax-cell + .syntax-cell.row2 { border-top: 1px solid #1c2d45; }
+        .syntax-lang {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.62rem;
+            color: #4a78aa;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.8rem;
+        }
+        .syntax-cell pre {
+            margin: 0;
+            padding: 0;
+            background: none;
+            border: none;
+            color: #b8cce0;
+            font-size: 0.78rem;
+            line-height: 1.65;
+        }
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3.5rem 3rem;
+            text-align: center;
+            color: var(--muted-light);
+            font-size: 0.85rem;
+        }
+        footer strong { color: var(--ink); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .hero > * { animation: fadeUp 0.75s ease both; }
+        .hero > *:nth-child(2) { animation-delay: 0.08s; }
+        .hero > *:nth-child(3) { animation-delay: 0.18s; }
+        .hero > *:nth-child(4) { animation-delay: 0.28s; }
+        .hero > *:nth-child(5) { animation-delay: 0.38s; }
+        .hero > *:nth-child(6) { animation-delay: 0.48s; }
+        @media (max-width: 900px) {
+            .wrap { padding: 0 1.5rem; }
+            .two-col, .three-col, .four-col, .syntax-cells { grid-template-columns: 1fr; }
+            .pg-body { grid-template-columns: 1fr; }
+            .pg-code { border-right: none; border-bottom: 1px solid #1c2d45; }
+            .hero { padding: 4rem 1.5rem 3rem; }
+            .hero-stats { gap: 2rem; flex-wrap: wrap; }
+            nav { padding: 0.75rem 1.5rem; }
+            .nav-links { display: none; }
+        }
+        [data-i18n] { transition: opacity 0.2s; }
+        .lang-fade { opacity: 0; }
+    </style>
+</head>
+<body>
+
+<!-- LANGUAGE SWITCHER BAR (ACUM CU 8 LIMBI) -->
+<div class="lang-switcher-bar">
+    <span class="lang-switcher-label">interface language ·</span>
+    <button class="ls-btn active" onclick="setLang('en', this)">🇬🇧 EN</button>
+    <button class="ls-btn" onclick="setLang('ro', this)">🇷🇴 RO</button>
+    <button class="ls-btn" onclick="setLang('fr', this)">🇫🇷 FR</button>
+    <button class="ls-btn" onclick="setLang('de', this)">🇩🇪 DE</button>
+    <button class="ls-btn" onclick="setLang('es', this)">🇪🇸 ES</button>
+    <button class="ls-btn" onclick="setLang('ja', this)">🇯🇵 JA</button>
+    <button class="ls-btn" onclick="setLang('ru', this)">🇷🇺 RU</button>
+    <button class="ls-btn" onclick="setLang('zh', this)">🇨🇳 ZH</button>
+</div>
+
+<!-- NAV -->
+<nav>
+    <a class="nav-logo" href="#">L.O.</a>
+    <ul class="nav-links">
+        <li><a href="#filosofie"    data-i18n="nav_philosophy">Philosophy</a></li>
+        <li><a href="#arhitectura"  data-i18n="nav_arch">Architecture</a></li>
+        <li><a href="#sintaxa"      data-i18n="nav_syntax">Syntax</a></li>
+        <li><a href="#tipuri"       data-i18n="nav_types">Types</a></li>
+        <li><a href="#cuantic"      data-i18n="nav_quantum">Quantum</a></li>
+        <li><a href="#baze-date"    data-i18n="nav_db">LinguaDB</a></li>
+        <li><a href="#demo"         data-i18n="nav_demo">Demo</a></li>
+        <li><a href="#ecosistem"    data-i18n="nav_ecosystem">Ecosystem</a></li>
+        <li><a href="#roadmap"      data-i18n="nav_roadmap">Roadmap</a></li>
+    </ul>
+    <div class="nav-right"><span class="badge-v">v4.0</span></div>
+</nav>
+
+<!-- HERO -->
+<div class="hero wrap">
+    <div class="hero-grid"></div>
+    <div class="hero-eyebrow">Lingua Omnibus · <span data-i18n="hero_eyebrow">Technical Specification</span></div>
+    <h1 class="hero-title"><span data-i18n="hero_title_line1">Program in</span><br><em data-i18n="hero_title_line2">any human language.</em></h1>
+    <p class="hero-sub" data-i18n="hero_sub">A universal programming language — multilingual, multi-architecture, with integrated databases and native hybrid-quantum computing. Created by <strong>Claudiu Groza (Vemeth)</strong>.</p>
+    <div class="hero-tags">
+        <span class="hero-tag" data-i18n="tag_langs">🌍 30+ Natural Languages</span>
+        <span class="hero-tag q" data-i18n="tag_quantum">⚛️ Hybrid-Quantum</span>
+        <span class="hero-tag db" data-i18n="tag_db">🗄️ Native LinguaDB</span>
+        <span class="hero-tag" data-i18n="tag_jit">⚡ Adaptive JIT</span>
+        <span class="hero-tag ml" data-i18n="tag_ai">🤖 AI-Extensible</span>
+        <span class="hero-tag" data-i18n="tag_types">🔒 Linear Types</span>
+    </div>
+    <div class="hero-stats">
+        <div><div class="stat-num">30+</div><div class="stat-label" data-i18n="stat_langs">Natural Languages</div></div>
+        <div><div class="stat-num">5</div><div class="stat-label" data-i18n="stat_arch">Hardware Architectures</div></div>
+        <div><div class="stat-num">3</div><div class="stat-label" data-i18n="stat_layers">Compiler Layers</div></div>
+        <div><div class="stat-num">∞</div><div class="stat-label" data-i18n="stat_poss">Possibilities</div></div>
+    </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+    <div class="marquee-inner" id="marqueeTrack"></div>
+</div>
+
+<!-- PHILOSOPHY (neschimbat) -->
+<section id="filosofie">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec01_label">01 · Philosophy</div>
+        <h2 class="sec-title" data-i18n="sec01_title">Why Lingua Omnibus?</h2>
+        <div class="two-col">
+            <div>
+                <p style="font-size:1.08rem; font-weight:300; line-height:1.82;" data-i18n="sec01_p1">There are approximately <strong>700 million potential programmers</strong> who are excluded from programming because of the language barrier. All modern programming languages are, in essence, dialects of English.</p>
+                <p data-i18n="sec01_p2">Lingua Omnibus breaks this tradition. The semantics remain universal, but the syntax is the expression of your native language.</p>
+                <div class="note">
+                    <strong data-i18n="vision_label">Vision:</strong> <span data-i18n="vision_text">The same program, written in Romanian, Japanese, Arabic or Swahili, produces identical, optimized machine code. Language is not an obstacle — it is a bridge.</span>
+                </div>
+            </div>
+            <div>
+                <div class="principle-row">
+                    <div class="principle-num">1</div>
+                    <div class="principle-body">
+                        <strong data-i18n="p1_title">Universal Linguistic Accessibility</strong>
+                        <p data-i18n="p1_body">Keywords are mapped from any natural language to internal abstract tokens. The semantic core is completely isolated from language.</p>
+                    </div>
+                </div>
+                <div class="principle-row">
+                    <div class="principle-num">2</div>
+                    <div class="principle-body">
+                        <strong data-i18n="p2_title">Total Hardware Portability</strong>
+                        <p data-i18n="p2_body">Native compilation for x86-64, ARM, RISC-V, PowerPC, and QPU. One source file, any target.</p>
+                    </div>
+                </div>
+                <div class="principle-row">
+                    <div class="principle-num">3</div>
+                    <div class="principle-body">
+                        <strong data-i18n="p3_title">Native Persistence Without Friction</strong>
+                        <p data-i18n="p3_body">ACID database engine integrated directly in the language. No more object-relational impedance mismatch.</p>
+                    </div>
+                </div>
+                <div class="principle-row">
+                    <div class="principle-num">4</div>
+                    <div class="principle-body">
+                        <strong data-i18n="p4_title">Intrinsic Adaptability</strong>
+                        <p data-i18n="p4_body">Tiered JIT, hardware adapters, context-aware specialization. Code self-optimizes based on the machine it runs on.</p>
+                    </div>
+                </div>
+                <div class="principle-row">
+                    <div class="principle-num">5</div>
+                    <div class="principle-body">
+                        <strong data-i18n="p5_title">Verifiable Correctness</strong>
+                        <p data-i18n="p5_body">Linear types for qubits (no-cloning theorem), static type system with inference, formally verifiable LIR.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="arhitectura">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec02_label">02 · Architecture</div>
+        <h2 class="sec-title" data-i18n="sec02_title">Three layers. One semantics.</h2>
+        <p data-i18n="sec02_p">Strict separation allows the same semantic code to compile for any hardware target, while the frontend is fully replaceable without affecting the rest of the pipeline.</p>
+
+        <div class="arch-layer L1">
+            <div class="arch-layer-label" data-i18n="l1_label">Layer 1 · Frontend</div>
+            <div class="arch-layer-title" data-i18n="l1_title">Multilingual Surface — Per-Language Parsers</div>
+            <div style="margin-top:0.8rem;">
+                <span class="lang-pill">🇷🇴 Română</span><span class="lang-pill">🇬🇧 English</span>
+                <span class="lang-pill">🇪🇸 Español</span><span class="lang-pill">🇫🇷 Français</span>
+                <span class="lang-pill">🇩🇪 Deutsch</span><span class="lang-pill">🇯🇵 日本語</span>
+                <span class="lang-pill">🇸🇦 العربية</span><span class="lang-pill">🇮🇳 हिन्दी</span>
+                <span class="lang-pill">🇨🇳 中文</span><span class="lang-pill">🇷🇺 Русский</span>
+                <span class="lang-pill">🇵🇹 Português</span><span class="lang-pill">🇰🇷 한국어</span>
+                <span class="lang-pill">🇮🇹 Italiano</span><span class="lang-pill">🇵🇱 Polski</span>
+                <span class="lang-pill">+ 16 <span data-i18n="more_lang">more</span></span>
+            </div>
+            <p style="margin-top:0.8rem; font-size:0.86rem; color:var(--muted); margin-bottom:0;" data-i18n="l1_desc">Each parser produces the same unified AST. Automatic language detection or explicit <code>#lingua: XX</code> directive.</p>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer L2">
+            <div class="arch-layer-label" data-i18n="l2_label">Layer 2 · Semantic Core</div>
+            <div class="arch-layer-title">Lingua Intermediate Representation (LIR)</div>
+            <div style="display:flex; gap:0.8rem; margin-top:0.8rem; flex-wrap:wrap;">
+                <span style="background:#d0e8da; color:#1a5830; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">Unified AST</span>
+                <span style="background:#d0e8da; color:#1a5830; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">Type Inference</span>
+                <span style="background:#d0e8da; color:#1a5830; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">Constant Folding</span>
+                <span style="background:#d0e8da; color:#1a5830; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">Inlining</span>
+                <span style="background:#d0e8da; color:#1a5830; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">Devirtualization</span>
+                <span style="background:#d0e8da; color:#1a5830; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">Formal Verification</span>
+            </div>
+            <p style="margin-top:0.8rem; font-size:0.86rem; color:var(--muted); margin-bottom:0;" data-i18n="l2_desc">Statically typed, language-and-architecture agnostic. Based on an MLIR subset with quantum and DB dialects.</p>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer L3">
+            <div class="arch-layer-label" data-i18n="l3_label">Layer 3 · Backend</div>
+            <div class="arch-layer-title" data-i18n="l3_title">Multi-Target Execution</div>
+            <div style="display:flex; gap:0.8rem; margin-top:0.8rem; flex-wrap:wrap;">
+                <span style="background:#f5e0d0; color:#6a2800; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">x86_64 · AVX-512</span>
+                <span style="background:#f5e0d0; color:#6a2800; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">ARM · SVE2</span>
+                <span style="background:#f5e0d0; color:#6a2800; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">RISC-V · Vector 1.0</span>
+                <span style="background:#f5e0d0; color:#6a2800; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">PowerPC · VSX</span>
+                <span style="background:#f5e0d0; color:#6a2800; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">QPU · OpenQASM 3.0</span>
+                <span style="background:#f5e0d0; color:#6a2800; border-radius:5px; padding:0.25rem 0.75rem; font-size:0.8rem; font-weight:500;">WebAssembly</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SYNTAX (6 limbi, neschimbat) -->
+<section id="sintaxa">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec03_label">03 · Syntax</div>
+        <h2 class="sec-title" data-i18n="sec03_title">Same program. Six languages.</h2>
+        <p data-i18n="sec03_p">The compiler auto-detects the language from tokens or via the <code>#lingua: RO</code> directive. Each language has a lexical mapping file.</p>
+
+        <div class="syntax-grid">
+            <div class="syntax-header">Fibonacci(n) — parallel translations · <span data-i18n="same_semantics">identical semantics, compiled identically</span></div>
+            <div class="syntax-cells">
+                <div class="syntax-cell">
+                    <div class="syntax-lang">🇷🇴 Română</div>
+<pre><span class="kw">funcție</span> <span class="fn">fib</span>(n: <span class="typ">Întreg</span>) <span class="kw">returnează</span> <span class="typ">Întreg</span>:
+    <span class="kw">dacă</span> n ≤ 1 <span class="kw">atunci</span>:
+        <span class="kw">returnează</span> n
+    <span class="kw">altfel</span>:
+        <span class="kw">returnează</span> <span class="fn">fib</span>(n-1) + <span class="fn">fib</span>(n-2)</pre>
+                </div>
+                <div class="syntax-cell">
+                    <div class="syntax-lang">🇬🇧 English</div>
+<pre><span class="kw">function</span> <span class="fn">fib</span>(n: <span class="typ">Integer</span>) <span class="kw">returns</span> <span class="typ">Integer</span>:
+    <span class="kw">if</span> n ≤ 1 <span class="kw">then</span>:
+        <span class="kw">return</span> n
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="fn">fib</span>(n-1) + <span class="fn">fib</span>(n-2)</pre>
+                </div>
+                <div class="syntax-cell">
+                    <div class="syntax-lang">🇫🇷 Français</div>
+<pre><span class="kw">fonction</span> <span class="fn">fib</span>(n: <span class="typ">Entier</span>) <span class="kw">retourne</span> <span class="typ">Entier</span>:
+    <span class="kw">si</span> n ≤ 1 <span class="kw">alors</span>:
+        <span class="kw">retourne</span> n
+    <span class="kw">sinon</span>:
+        <span class="kw">retourne</span> <span class="fn">fib</span>(n-1) + <span class="fn">fib</span>(n-2)</pre>
+                </div>
+                <div class="syntax-cell" style="border-top:1px solid #1c2d45;">
+                    <div class="syntax-lang">🇩🇪 Deutsch</div>
+<pre><span class="kw">Funktion</span> <span class="fn">fib</span>(n: <span class="typ">Ganzzahl</span>) <span class="kw">gibt zurück</span> <span class="typ">Ganzzahl</span>:
+    <span class="kw">wenn</span> n ≤ 1 <span class="kw">dann</span>:
+        <span class="kw">zurückgeben</span> n
+    <span class="kw">sonst</span>:
+        <span class="kw">zurückgeben</span> <span class="fn">fib</span>(n-1) + <span class="fn">fib</span>(n-2)</pre>
+                </div>
+                <div class="syntax-cell" style="border-top:1px solid #1c2d45;">
+                    <div class="syntax-lang">🇪🇸 Español</div>
+<pre><span class="kw">función</span> <span class="fn">fib</span>(n: <span class="typ">Entero</span>) <span class="kw">devuelve</span> <span class="typ">Entero</span>:
+    <span class="kw">si</span> n ≤ 1 <span class="kw">entonces</span>:
+        <span class="kw">devuelve</span> n
+    <span class="kw">si no</span>:
+        <span class="kw">devuelve</span> <span class="fn">fib</span>(n-1) + <span class="fn">fib</span>(n-2)</pre>
+                </div>
+                <div class="syntax-cell" style="border-top:1px solid #1c2d45;">
+                    <div class="syntax-lang">🇯🇵 日本語</div>
+<pre><span class="kw">関数</span> <span class="fn">fib</span>(n: <span class="typ">整数</span>) <span class="kw">返す</span> <span class="typ">整数</span>:
+    <span class="kw">もし</span> n ≤ 1 <span class="kw">ならば</span>:
+        <span class="kw">返す</span> n
+    <span class="kw">そうでなければ</span>:
+        <span class="kw">返す</span> <span class="fn">fib</span>(n-1) + <span class="fn">fib</span>(n-2)</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TYPES -->
+<section id="tipuri">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec04_label">04 · Type System</div>
+        <h2 class="sec-title" data-i18n="sec04_title">Static. Safe. Universal.</h2>
+        <p data-i18n="sec04_p">All type names are translatable. The compiler knows <code>Integer</code>, <code>Entier</code>, <code>Ganzzahl</code>, <code>整数</code>, and <code>Întreg</code> as the same primitive.</p>
+
+        <div class="three-col" style="margin:2rem 0;">
+            <div class="card">
+                <div class="card-icon">🔢</div>
+                <h4 data-i18n="types_prim">Primitives</h4>
+                <p><code>Integer/Entier/整数</code> · <code>Float</code> · <code>Bool</code> · <code>Text/String</code> · <code>Byte</code> · <code>Unit</code></p>
+            </div>
+            <div class="card">
+                <div class="card-icon">📦</div>
+                <h4 data-i18n="types_comp">Composite</h4>
+                <p><code>Array&lt;T&gt;</code> · <code>Map&lt;K,V&gt;</code> · <code>Tuple&lt;A,B&gt;</code> · <code>Option&lt;T&gt;</code> · <code>Result&lt;T,E&gt;</code> · structs</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚛️</div>
+                <h4 data-i18n="types_lin">Linear (Quantum)</h4>
+                <p><code>Qubit</code> (non-clonable) · <code>QReg&lt;N&gt;</code> · <code>QCircuit&lt;I,O&gt;</code> · <code>QState&lt;N&gt;</code></p>
+            </div>
+        </div>
+
+        <h3 data-i18n="effects_title">v4.0 New: Affine Types &amp; Algebraic Effects</h3>
+        <pre><span class="cm">// Effects declared explicitly in the function signature</span>
+<span class="kw">function</span> <span class="fn">read_and_save</span>(path: <span class="typ">String</span>) <span class="kw">returns</span> <span class="typ">Result</span>&lt;<span class="typ">Unit</span>, <span class="typ">Error</span>&gt;
+    <span class="kw">with_effects</span> [<span class="typ">IO</span>, <span class="typ">Database</span>]:
+    <span class="kw">var</span> content = <span class="fn">read_file</span>(path)?   <span class="cm">// IO effect</span>
+    <span class="fn">insert</span> into <span class="typ">Log</span>(content: content) <span class="cm">// Database effect</span>
+    <span class="kw">return</span> <span class="typ">Ok</span>()</pre>
+    </div>
+</section>
+
+<!-- QUANTUM -->
+<section id="cuantic">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec05_label">05 · Hybrid-Quantum Computing</div>
+        <h2 class="sec-title" data-i18n="sec05_title">Qubits are first-class citizens.</h2>
+        <p data-i18n="sec05_p">L.O. treats qubits as linear resources verified at compile time. <code>quantum { ... }</code> blocks are compiled into OpenQASM 3.0 circuits and can run on local simulators or cloud QPUs (IBM, IonQ, Rigetti, Azure Quantum).</p>
+
+        <div class="two-col" style="align-items:start;">
+            <div>
+                <h3 data-i18n="bell_title">Bell Circuit — Multilingual Examples</h3>
+<pre><span class="cm">#lingua: EN  — maximally entangled Bell pair</span>
+
+<span class="kw">function</span> <span class="fn">bell_circuit</span>() <span class="kw">returns</span> <span class="typ">Tuple</span>&lt;<span class="typ">Bool</span>, <span class="typ">Bool</span>&gt;:
+    <span class="kw">quantum</span>:
+        <span class="kw">qubit</span> q0, q1
+        <span class="fn">hadamard</span>(q0)           <span class="cm">// superposition</span>
+        <span class="fn">cnot</span>(q0, q1)           <span class="cm">// entanglement</span>
+        r0 = <span class="fn">measure</span> q0
+        r1 = <span class="fn">measure</span> q1
+    <span class="kw">return</span> (r0, r1)
+
+<span class="cm">// Possible results: (0,0) or (1,1) — never (0,1) or (1,0)</span></pre>
+                <div class="note">
+                    <strong data-i18n="compile_guarantee">Compile-time guarantee:</strong> <span data-i18n="qubit_note">The <code>Qubit</code> type is linear — the compiler rejects any attempt to copy or re-measure a qubit, respecting the no-cloning theorem.</span>
+                </div>
+            </div>
+            <div>
+                <div class="quant-box">
+                    <div class="quant-title">⚛ Bell Circuit Visualizer · 2 qubits</div>
+                    <div class="qubit-row">
+                        <span class="qubit-label">q₀ ─</span>
+                        <div class="gate h">H</div><div class="wire"></div>
+                        <div class="gate cx">●</div><div class="wire"></div>
+                        <div class="gate m">M</div><div class="wire"></div>
+                        <span style="color:#c8a848; font-size:0.75rem;">→ b₀</span>
+                    </div>
+                    <div class="qubit-row">
+                        <span class="qubit-label">q₁ ─</span>
+                        <div class="wire"></div><div class="wire"></div>
+                        <div class="gate cx">⊕</div><div class="wire"></div>
+                        <div class="gate m">M</div><div class="wire"></div>
+                        <span style="color:#c8a848; font-size:0.75rem;">→ b₁</span>
+                    </div>
+                    <div style="margin-top:1.4rem; border-top:1px solid #152030; padding-top:0.9rem;">
+                        <div style="font-size:0.68rem; color:#2a5068; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.6rem;">Probability distribution:</div>
+                        <div style="font-size:0.8rem; margin:0.3rem 0;"><span style="color:#d8b858;">|00⟩</span> ──────── 50%</div>
+                        <div style="font-size:0.8rem; margin:0.3rem 0; color:#3a4a5a;">|01⟩ ── 0%</div>
+                        <div style="font-size:0.8rem; margin:0.3rem 0; color:#3a4a5a;">|10⟩ ── 0%</div>
+                        <div style="font-size:0.8rem; margin:0.3rem 0;"><span style="color:#70b878;">|11⟩</span> ──────── 50%</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:1.8rem;" data-i18n="qhw_title">Quantum Hardware Backends</h3>
+                <table>
+                    <thead><tr><th>Provider</th><th data-i18n="qubits_col">Qubits</th><th>Protocol</th></tr></thead>
+                    <tbody>
+                        <tr><td>IBM Quantum</td><td>127–433</td><td>OpenQASM 3.0</td></tr>
+                        <tr><td>IonQ</td><td>32–64</td><td>Native Gates</td></tr>
+                        <tr><td>Rigetti</td><td>80</td><td>Quil + QCS</td></tr>
+                        <tr><td>Azure Quantum</td><td>variable</td><td>Q# interop</td></tr>
+                        <tr><td data-i18n="local_sim">Local Simulator</td><td>≤ 32</td><td>Built-in</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- LINGUADB -->
+<section id="baze-date">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec06_label">06 · LinguaDB</div>
+        <h2 class="sec-title" data-i18n="sec06_title">Databases as native syntax.</h2>
+        <p data-i18n="sec06_p">LinguaDB is an ACID engine integrated directly in the compiler. Schemas are statically verified at compile time, not at runtime. Supports relational models, JSON documents, and vector indexes for semantic search.</p>
+
+        <div class="two-col">
+            <div>
+                <h3 data-i18n="relational_ops">Relational Operations</h3>
+<pre><span class="cm">#lingua: EN</span>
+
+<span class="kw">create</span> table <span class="typ">Employees</span> <span class="kw">if_not_exists</span> (
+    id      <span class="typ">Integer</span>   <span class="kw">primary_key auto_increment</span>,
+    name    <span class="typ">Text</span>(100) <span class="kw">not_null</span>,
+    salary  <span class="typ">Float</span>,
+    dept    <span class="typ">Text</span>,
+    created <span class="typ">Time</span>      <span class="kw">default</span> <span class="fn">NOW</span>()
+)
+
+<span class="kw">insert</span> <span class="kw">into</span> <span class="typ">Employees</span> (name, salary, dept)
+    <span class="kw">values</span> (<span class="str">"Ana Ionescu"</span>, <span class="num">7500.0</span>, <span class="str">"Engineering"</span>)
+
+<span class="kw">var</span> eng_team =
+    <span class="kw">select</span> name, salary <span class="kw">from</span> <span class="typ">Employees</span>
+    <span class="kw">where</span> dept = <span class="str">"Engineering"</span> <span class="kw">and</span> salary > <span class="num">5000</span>
+    <span class="kw">order</span> <span class="kw">by</span> salary <span class="kw">descending</span>
+
+<span class="kw">for</span> emp <span class="kw">in</span> eng_team:
+    <span class="fn">print</span>(emp.name, <span class="str">" earns "</span>, emp.salary)</pre>
+            </div>
+            <div>
+                <h3 data-i18n="vector_search">Vector Semantic Search</h3>
+<pre><span class="cm">// Vector indexes for AI embeddings</span>
+<span class="kw">create</span> table <span class="typ">Documents</span> (
+    id      <span class="typ">Integer</span> <span class="kw">primary_key</span>,
+    title   <span class="typ">Text</span>,
+    content <span class="typ">Text</span>,
+    vector  <span class="typ">Float</span>[<span class="num">1536</span>]   <span class="cm">// OpenAI embedding</span>
+)
+<span class="kw">create</span> index <span class="typ">idx_vec</span> <span class="kw">type</span> HNSW <span class="kw">on</span> <span class="typ">Documents</span>(vector)
+    <span class="kw">with</span> distance = <span class="str">"cosine"</span>
+
+<span class="kw">function</span> <span class="fn">find_similar</span>(query: <span class="typ">Text</span>, top_k: <span class="typ">Integer</span>):
+    <span class="kw">var</span> emb = <span class="fn">embedding</span>(query)
+    <span class="kw">return</span>
+        <span class="kw">select</span> title, content,
+               <span class="fn">cosine_sim</span>(vector, emb) <span class="kw">as</span> score
+        <span class="kw">from</span> <span class="typ">Documents</span>
+        <span class="kw">order by</span> score <span class="kw">descending</span>
+        <span class="kw">limit</span> top_k</pre>
+
+                <div class="success-block">
+                    <strong data-i18n="schema_guarantee">Schema verified at compile time:</strong> <span data-i18n="schema_note">If you access a non-existent field, the compiler produces an error — not a runtime crash. LinguaDB completely eliminates SQL injection through implicit parameterization.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DEMO (ACUM CU 8 LIMBI IN SELECTOR) -->
+<section id="demo">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec07_label">07 · Interactive Demo</div>
+        <h2 class="sec-title" data-i18n="sec07_title">Choose a language. Read the code.</h2>
+        <p data-i18n="sec07_p">The examples below show the same complete program — user registration with validation and persistence — in six natural languages.</p>
+
+        <div class="playground">
+            <div class="pg-bar">
+                <div class="pg-dots">
+                    <div class="pg-dot r"></div>
+                    <div class="pg-dot y"></div>
+                    <div class="pg-dot g"></div>
+                </div>
+                <span class="pg-title">visitor_app.lo</span>
+                <div class="pg-lang-select">
+                    <button class="pg-lang-btn active" onclick="showCode('en', this)">🇬🇧 EN</button>
+                    <button class="pg-lang-btn" onclick="showCode('ro', this)">🇷🇴 RO</button>
+                    <button class="pg-lang-btn" onclick="showCode('fr', this)">🇫🇷 FR</button>
+                    <button class="pg-lang-btn" onclick="showCode('de', this)">🇩🇪 DE</button>
+                    <button class="pg-lang-btn" onclick="showCode('es', this)">🇪🇸 ES</button>
+                    <button class="pg-lang-btn" onclick="showCode('ja', this)">🇯🇵 JA</button>
+                    <button class="pg-lang-btn" onclick="showCode('ru', this)">🇷🇺 RU</button>
+                    <button class="pg-lang-btn" onclick="showCode('zh', this)">🇨🇳 ZH</button>
+                </div>
+            </div>
+            <div class="pg-body">
+                <div class="pg-code" id="demo-code"></div>
+                <div class="pg-output">
+                    <div class="pg-output-label">▶ Simulated Output</div>
+                    <div class="pg-output-line info" id="out-compile">loc compile visitor_app.lo --target=x86_64</div>
+                    <div class="pg-output-line info" id="out-lang">✓ Language detected: English (EN)</div>
+                    <div class="pg-output-line info" id="out-schema">✓ Schema 'Visitors' statically validated</div>
+                    <div class="pg-output-line info">✓ LIR compilation complete (0 errors, 0 warnings)</div>
+                    <div class="pg-output-line info">✓ Backend x86_64 (AVX-512 enabled)</div>
+                    <div class="pg-output-line" style="margin-top:1rem;" id="out-name">Name: Ana Ionescu</div>
+                    <div class="pg-output-line" id="out-age">Age: 25</div>
+                    <div class="pg-output-line" id="out-welcome">Welcome, Ana Ionescu!</div>
+                    <div class="pg-output-line" id="out-saved">✓ Saved to database.</div>
+                    <div class="pg-output-line warn" style="margin-top:1rem;">Compile time: 47ms</div>
+                    <div class="pg-output-line warn">Binary size: 18KB</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COMPARISON -->
+<section>
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec08_label">08 · Comparison</div>
+        <h2 class="sec-title" data-i18n="sec08_title">L.O. vs. existing alternatives.</h2>
+        <table class="vs-table">
+            <thead><tr><th data-i18n="feature_col">Feature</th><th>Lingua Omnibus</th><th>Python</th><th>Rust</th><th>Julia</th><th>Q#</th></tr></thead>
+            <tbody>
+                <tr><td data-i18n="feat1">Native multilingual syntax</td><td class="yes">✓ 30+ languages</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+                <tr><td data-i18n="feat2">Integrated quantum computing</td><td class="yes">✓ Native</td><td class="partial">~ Qiskit ext.</td><td class="partial">~ external</td><td class="partial">~ Yao.jl</td><td class="yes">✓ Native</td></tr>
+                <tr><td data-i18n="feat3">Native DB without ORM</td><td class="yes">✓ LinguaDB</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+                <tr><td data-i18n="feat4">Linear types for qubits</td><td class="yes">✓</td><td class="no">✗</td><td class="partial">~ Affine</td><td class="no">✗</td><td class="yes">✓</td></tr>
+                <tr><td data-i18n="feat5">Native multi-arch compilation</td><td class="yes">✓ 5 arch</td><td class="no">✗ Interpreted</td><td class="yes">✓</td><td class="partial">~ LLVM</td><td class="partial">~ QIR</td></tr>
+                <tr><td data-i18n="feat6">Adaptive JIT</td><td class="yes">✓</td><td class="partial">~ PyPy</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td></tr>
+                <tr><td data-i18n="feat7">LIR formal verification</td><td class="yes">✓</td><td class="no">✗</td><td class="partial">~</td><td class="no">✗</td><td class="partial">~</td></tr>
+                <tr><td data-i18n="feat8">Static schema verification</td><td class="yes">✓</td><td class="no">✗</td><td class="partial">~ SQLx</td><td class="no">✗</td><td class="no">✗</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ECOSYSTEM -->
+<section id="ecosistem">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec09_label">09 · Ecosystem</div>
+        <h2 class="sec-title" data-i18n="sec09_title">Tools built for every language.</h2>
+        <div class="three-col">
+            <div class="card">
+                <div class="card-icon">⚙️</div>
+                <h4><code>loc</code> — <span data-i18n="tool_compiler">Main Compiler</span></h4>
+                <p data-i18n="tool_compiler_desc">Multilingual frontend + LIR + hardware backend. Automatic language detection, error reports in the source language, cross-compilation support.</p>
+                <pre class="pre-light" style="margin:0.8rem 0 0; font-size:0.77rem; padding:0.7rem 0.9rem;">loc build main.lo --target=arm64
+loc build main.lo --target=qpu:ibm</pre>
+            </div>
+            <div class="card">
+                <div class="card-icon">📦</div>
+                <h4><code>lopm</code> — <span data-i18n="tool_pm">Package Manager</span></h4>
+                <p data-i18n="tool_pm_desc">Multilingual registry. Packages can be written in any natural language and consumed in any other. Semantic resolution, not textual.</p>
+                <pre class="pre-light" style="margin:0.8rem 0 0; font-size:0.77rem; padding:0.7rem 0.9rem;">lopm add advanced-math
+lopm search "linear algebra"</pre>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎨</div>
+                <h4><code>lofmt</code> — <span data-i18n="tool_fmt">Formatter</span></h4>
+                <p data-i18n="tool_fmt_desc">Code formatting that respects the conventions of the chosen natural language. Diacritics support, RTL (Arabic, Hebrew), non-Latin scripts.</p>
+                <pre class="pre-light" style="margin:0.8rem 0 0; font-size:0.77rem; padding:0.7rem 0.9rem;">lofmt --lingua=AR file.lo
+lofmt --detect-lingua *.lo</pre>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔌</div>
+                <h4><code>lolsp</code> — <span data-i18n="tool_lsp">Language Server</span></h4>
+                <p data-i18n="tool_lsp_desc">Autocompletion, diagnostics, hover, rename — all in the natural language of the source. Compatible with VSCode, Neovim, JetBrains, Emacs.</p>
+                <pre class="pre-light" style="margin:0.8rem 0 0; font-size:0.77rem; padding:0.7rem 0.9rem;">lolsp --port 7777 &amp;
+# Automatic LSP integration</pre>
+            </div>
+            <div class="card">
+                <div class="card-icon">📚</div>
+                <h4><code>lodoc</code> — <span data-i18n="tool_doc">Doc Generator</span></h4>
+                <p data-i18n="tool_doc_desc">Generates HTML/Markdown documentation in the code's source language. Automatically translates comments into other languages on demand.</p>
+                <pre class="pre-light" style="margin:0.8rem 0 0; font-size:0.77rem; padding:0.7rem 0.9rem;">lodoc --translate-to=FR project/
+lodoc --format=html src/</pre>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔬</div>
+                <h4><code>lotest</code> — <span data-i18n="tool_test">Test Framework</span></h4>
+                <p data-i18n="tool_test_desc">Unit, integration, and property-based tests in natural language. Multilingual reports.</p>
+                <pre class="pre-light" style="margin:0.8rem 0 0; font-size:0.77rem; padding:0.7rem 0.9rem;">lotest run --parallel 8
+lotest coverage --format=html</pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec10_label">10 · Roadmap</div>
+        <h2 class="sec-title" data-i18n="sec10_title">What's next for L.O.</h2>
+        <div class="two-col" style="align-items:start;">
+            <div class="timeline">
+                <div class="tl-item">
+                    <div class="tl-phase" data-i18n="phase1_label">Phase 1 · 2025 Q1–Q2 ✓</div>
+                    <div class="tl-title" data-i18n="phase1_title">Foundations — Specification &amp; Prototype</div>
+                    <div class="tl-desc" data-i18n="phase1_desc">Formal LIR specification, prototype parser for RO/EN/ES/FR/JA, basic relational LinguaDB, static type system.</div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-phase" data-i18n="phase2_label">Phase 2 · 2025 Q3–Q4</div>
+                    <div class="tl-title" data-i18n="phase2_title">Full Compiler &amp; x86_64 Backend</div>
+                    <div class="tl-desc" data-i18n="phase2_desc">End-to-end compiler pipeline, x86_64 backend with AVX-512, tiered JIT, functional <code>loc</code> and <code>lopm</code>, 10 language support.</div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-phase" data-i18n="phase3_label">Phase 3 · 2026 Q1–Q2</div>
+                    <div class="tl-title" data-i18n="phase3_title">Multi-Architecture &amp; Quantum</div>
+                    <div class="tl-desc" data-i18n="phase3_desc">ARM/RISC-V/PowerPC backends, IBM+IonQ QPU integration, LinguaDB vector indexes, algebraic effects system, Language Server.</div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-phase" data-i18n="phase4_label">Phase 4 · 2026 Q3–Q4</div>
+                    <div class="tl-title" data-i18n="phase4_title">Ecosystem &amp; Community</div>
+                    <div class="tl-desc" data-i18n="phase4_desc">30+ natural languages, public package registry, IDE plugins, interactive documentation, first open-source projects in L.O.</div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-phase" data-i18n="phase5_label">Phase 5 · 2027+</div>
+                    <div class="tl-title" data-i18n="phase5_title">Formal Verification &amp; AI-Assisted</div>
+                    <div class="tl-desc" data-i18n="phase5_desc">Integrated LIR prover, LLM-assisted code generation in any natural language, native RTL and ideographic script support.</div>
+                </div>
+            </div>
+            <div>
+                <h3 data-i18n="planned_langs_title">Planned Languages v4.1+</h3>
+                <p data-i18n="planned_langs_desc">Through community contributions, L.O. targets 50 natural languages by 2027:</p>
+                <div style="margin:1rem 0;">
+                    <span class="lang-pill">🇸🇦 Arabic ✓</span>
+                    <span class="lang-pill">🇨🇳 Simplified Chinese ✓</span>
+                    <span class="lang-pill">🇹🇼 Traditional Chinese</span>
+                    <span class="lang-pill">🇮🇩 Indonesian</span>
+                    <span class="lang-pill">🇧🇷 Portuguese ✓</span>
+                    <span class="lang-pill">🇷🇺 Russian ✓</span>
+                    <span class="lang-pill">🇳🇬 Swahili</span>
+                    <span class="lang-pill">🇹🇷 Turkish</span>
+                    <span class="lang-pill">🇻🇳 Vietnamese</span>
+                    <span class="lang-pill">🇬🇷 Greek</span>
+                    <span class="lang-pill">🇮🇱 Hebrew (RTL)</span>
+                    <span class="lang-pill">🇹🇭 Thai</span>
+                    <span class="lang-pill">🇺🇦 Ukrainian</span>
+                    <span class="lang-pill">🇳🇱 Dutch</span>
+                    <span class="lang-pill">🇸🇪 Swedish</span>
+                    <span class="lang-pill">🇮🇹 Italian ✓</span>
+                    <span class="lang-pill">🇵🇱 Polish</span>
+                </div>
+
+                <h3 data-i18n="contrib_title">Contribute to L.O.</h3>
+                <p data-i18n="contrib_desc">Adding a new dialect requires a single JSON lexical mapping file and regression tests. No compiler changes needed.</p>
+                <pre class="pre-light" style="font-size:0.78rem;">{
+  "lingua": "SW",
+  "name": "Kiswahili",
+  "keywords": {
+    "KW_IF":       "kama",
+    "KW_ELSE":     "au",
+    "KW_FUNCTION": "kazi",
+    "KW_RETURNS":  "rudisha",
+    "KW_VAR":      "kigezo",
+    "KW_FOR":      "kwa"
+  }
+}</pre>
+                <div class="note">
+                    <strong data-i18n="collab_title">Looking for collaborators</strong> <span data-i18n="collab_desc">for new backends (GPU CUDA, WebGPU), uncovered natural languages, and formal LIR verification. Apache 2.0 license.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REFERENCES -->
+<section>
+    <div class="wrap">
+        <div class="sec-label" data-i18n="sec11_label">11 · References</div>
+        <h2 class="sec-title" data-i18n="sec11_title">Theoretical foundations.</h2>
+        <div class="three-col">
+            <div class="card"><h4>LLVM / MLIR</h4><p data-i18n="ref_llvm">Compiler infrastructure with extensible intermediate representations. LIR is an MLIR dialect with quantum and DB extensions.</p></div>
+            <div class="card"><h4>CompCert</h4><p data-i18n="ref_compcert">Formally verified C compiler, proving that compilers with formal verification are practically possible.</p></div>
+            <div class="card"><h4>Synaphe / Quipper</h4><p data-i18n="ref_quipper">Quantum languages with linear types — the basis for treating qubits as non-clonable resources in L.O.</p></div>
+            <div class="card"><h4>SELF / HotSpot JVM</h4><p data-i18n="ref_jvm">Prototypes for adaptive JIT optimizations at runtime, inline caching and type-based specialization.</p></div>
+            <div class="card"><h4>Esquemático</h4><p data-i18n="ref_esquema">Scheme dialect with Spanish keywords — proof that languages with multilingual syntax are viable.</p></div>
+            <div class="card"><h4>OpenQASM 3.0</h4><p data-i18n="ref_openqasm">The de facto standard for quantum circuits, chosen as the output format for L.O.'s quantum backend.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div style="font-family:'Playfair Display',serif; font-size:1.7rem; color:var(--ink); margin-bottom:0.5rem;">Lingua Omnibus</div>
+    <p style="max-width:500px; margin:0 auto 1.2rem; font-size:0.88rem;" data-i18n="footer_meta">Technical Documentation v4.0 · April 2026 · Apache 2.0 License</p>
+    <p data-i18n="footer_author">Created by <strong>Claudiu Groza (Vemeth)</strong> · Open project for international collaboration</p>
+    <p style="margin-top:0.6rem; font-style:italic; color:#b0a89a; font-size:0.82rem;" data-i18n="footer_quote">"Every human mind deserves to program in its own language."</p>
+</footer>
+
+<!-- ============================================================
+     SCRIPTS (INCLUSIV TRADUCERI RU + ZH)
+     ============================================================ -->
+<script>
+// ── i18n data ──────────────────────────────────────────────
+const i18n = {
+  en: {
+    nav_philosophy:"Philosophy", nav_arch:"Architecture", nav_syntax:"Syntax", nav_types:"Types",
+    nav_quantum:"Quantum", nav_db:"LinguaDB", nav_demo:"Demo", nav_ecosystem:"Ecosystem", nav_roadmap:"Roadmap",
+    hero_eyebrow:"Technical Specification",
+    hero_title_line1:"Program in", hero_title_line2:"any human language.",
+    hero_sub:'A universal programming language — multilingual, multi-architecture, with integrated databases and native hybrid-quantum computing. Created by <strong>Claudiu Groza (Vemeth)</strong>.',
+    tag_langs:"🌍 30+ Natural Languages", tag_quantum:"⚛️ Hybrid-Quantum",
+    tag_db:"🗄️ Native LinguaDB", tag_jit:"⚡ Adaptive JIT", tag_ai:"🤖 AI-Extensible", tag_types:"🔒 Linear Types",
+    stat_langs:"Natural Languages", stat_arch:"Hardware Architectures", stat_layers:"Compiler Layers", stat_poss:"Possibilities",
+    sec01_label:"01 · Philosophy", sec01_title:"Why Lingua Omnibus?",
+    sec01_p1:'There are approximately <strong>700 million potential programmers</strong> who are excluded from programming because of the language barrier. All modern programming languages are, in essence, dialects of English.',
+    sec01_p2:"Lingua Omnibus breaks this tradition. The semantics remain universal, but the syntax is the expression of your native language.",
+    vision_label:"Vision:", vision_text:"The same program, written in Romanian, Japanese, Arabic or Swahili, produces identical, optimized machine code. Language is not an obstacle — it is a bridge.",
+    p1_title:"Universal Linguistic Accessibility", p1_body:"Keywords are mapped from any natural language to internal abstract tokens. The semantic core is completely isolated from language.",
+    p2_title:"Total Hardware Portability", p2_body:"Native compilation for x86-64, ARM, RISC-V, PowerPC, and QPU. One source file, any target.",
+    p3_title:"Native Persistence Without Friction", p3_body:"ACID database engine integrated directly in the language. No more object-relational impedance mismatch.",
+    p4_title:"Intrinsic Adaptability", p4_body:"Tiered JIT, hardware adapters, context-aware specialization. Code self-optimizes based on the machine it runs on.",
+    p5_title:"Verifiable Correctness", p5_body:"Linear types for qubits (no-cloning theorem), static type system with inference, formally verifiable LIR.",
+    sec02_label:"02 · Architecture", sec02_title:"Three layers. One semantics.",
+    sec02_p:"Strict separation allows the same semantic code to compile for any hardware target, while the frontend is fully replaceable without affecting the rest of the pipeline.",
+    l1_label:"Layer 1 · Frontend", l1_title:"Multilingual Surface — Per-Language Parsers",
+    more_lang:"more", l1_desc:'Each parser produces the same unified AST. Automatic language detection or explicit <code>#lingua: XX</code> directive.',
+    l2_label:"Layer 2 · Semantic Core", l2_desc:"Statically typed, language-and-architecture agnostic. Based on an MLIR subset with quantum and DB dialects.",
+    l3_label:"Layer 3 · Backend", l3_title:"Multi-Target Execution",
+    sec03_label:"03 · Syntax", sec03_title:"Same program. Six languages.",
+    sec03_p:'The compiler auto-detects the language from tokens or via the <code>#lingua: RO</code> directive. Each language has a lexical mapping file.',
+    same_semantics:"identical semantics, compiled identically",
+    sec04_label:"04 · Type System", sec04_title:"Static. Safe. Universal.",
+    sec04_p:'All type names are translatable. The compiler knows <code>Integer</code>, <code>Entier</code>, <code>Ganzzahl</code>, <code>整数</code>, and <code>Întreg</code> as the same primitive.',
+    types_prim:"Primitives", types_comp:"Composite", types_lin:"Linear (Quantum)",
+    effects_title:"v4.0 New: Affine Types &amp; Algebraic Effects",
+    sec05_label:"05 · Hybrid-Quantum Computing", sec05_title:"Qubits are first-class citizens.",
+    sec05_p:'L.O. treats qubits as linear resources verified at compile time. <code>quantum { ... }</code> blocks are compiled into OpenQASM 3.0 circuits and can run on local simulators or cloud QPUs (IBM, IonQ, Rigetti, Azure Quantum).',
+    bell_title:"Bell Circuit — Multilingual Examples",
+    compile_guarantee:"Compile-time guarantee:", qubit_note:'The <code>Qubit</code> type is linear — the compiler rejects any attempt to copy or re-measure a qubit, respecting the no-cloning theorem.',
+    qhw_title:"Quantum Hardware Backends", qubits_col:"Qubits", local_sim:"Local Simulator",
+    sec06_label:"06 · LinguaDB", sec06_title:"Databases as native syntax.",
+    sec06_p:"LinguaDB is an ACID engine integrated directly in the compiler. Schemas are statically verified at compile time, not at runtime. Supports relational models, JSON documents, and vector indexes for semantic search.",
+    relational_ops:"Relational Operations", vector_search:"Vector Semantic Search",
+    schema_guarantee:"Schema verified at compile time:", schema_note:"If you access a non-existent field, the compiler produces an error — not a runtime crash. LinguaDB completely eliminates SQL injection through implicit parameterization.",
+    sec07_label:"07 · Interactive Demo", sec07_title:"Choose a language. Read the code.",
+    sec07_p:"The examples below show the same complete program — user registration with validation and persistence — in six natural languages.",
+    sec08_label:"08 · Comparison", sec08_title:"L.O. vs. existing alternatives.",
+    feature_col:"Feature",
+    feat1:"Native multilingual syntax", feat2:"Integrated quantum computing", feat3:"Native DB without ORM",
+    feat4:"Linear types for qubits", feat5:"Native multi-arch compilation", feat6:"Adaptive JIT",
+    feat7:"LIR formal verification", feat8:"Static schema verification",
+    sec09_label:"09 · Ecosystem", sec09_title:"Tools built for every language.",
+    tool_compiler:"Main Compiler", tool_compiler_desc:"Multilingual frontend + LIR + hardware backend. Automatic language detection, error reports in the source language, cross-compilation support.",
+    tool_pm:"Package Manager", tool_pm_desc:"Multilingual registry. Packages can be written in any natural language and consumed in any other. Semantic resolution, not textual.",
+    tool_fmt:"Formatter", tool_fmt_desc:"Code formatting that respects the conventions of the chosen natural language. Diacritics support, RTL (Arabic, Hebrew), non-Latin scripts.",
+    tool_lsp:"Language Server", tool_lsp_desc:"Autocompletion, diagnostics, hover, rename — all in the natural language of the source. Compatible with VSCode, Neovim, JetBrains, Emacs.",
+    tool_doc:"Doc Generator", tool_doc_desc:"Generates HTML/Markdown documentation in the code's source language. Automatically translates comments into other languages on demand.",
+    tool_test:"Test Framework", tool_test_desc:"Unit, integration, and property-based tests in natural language. Multilingual reports.",
+    sec10_label:"10 · Roadmap", sec10_title:"What's next for L.O.",
+    phase1_label:"Phase 1 · 2025 Q1–Q2 ✓", phase1_title:"Foundations — Specification & Prototype", phase1_desc:"Formal LIR specification, prototype parser for RO/EN/ES/FR/JA, basic relational LinguaDB, static type system.",
+    phase2_label:"Phase 2 · 2025 Q3–Q4", phase2_title:"Full Compiler & x86_64 Backend", phase2_desc:'End-to-end compiler pipeline, x86_64 backend with AVX-512, tiered JIT, functional <code>loc</code> and <code>lopm</code>, 10 language support.',
+    phase3_label:"Phase 3 · 2026 Q1–Q2", phase3_title:"Multi-Architecture & Quantum", phase3_desc:"ARM/RISC-V/PowerPC backends, IBM+IonQ QPU integration, LinguaDB vector indexes, algebraic effects system, Language Server.",
+    phase4_label:"Phase 4 · 2026 Q3–Q4", phase4_title:"Ecosystem & Community", phase4_desc:"30+ natural languages, public package registry, IDE plugins, interactive documentation, first open-source projects in L.O.",
+    phase5_label:"Phase 5 · 2027+", phase5_title:"Formal Verification & AI-Assisted", phase5_desc:"Integrated LIR prover, LLM-assisted code generation in any natural language, native RTL and ideographic script support.",
+    planned_langs_title:"Planned Languages v4.1+", planned_langs_desc:"Through community contributions, L.O. targets 50 natural languages by 2027:",
+    contrib_title:"Contribute to L.O.", contrib_desc:"Adding a new dialect requires a single JSON lexical mapping file and regression tests. No compiler changes needed.",
+    collab_title:"Looking for collaborators", collab_desc:"for new backends (GPU CUDA, WebGPU), uncovered natural languages, and formal LIR verification. Apache 2.0 license.",
+    sec11_label:"11 · References", sec11_title:"Theoretical foundations.",
+    ref_llvm:"Compiler infrastructure with extensible intermediate representations. LIR is an MLIR dialect with quantum and DB extensions.",
+    ref_compcert:"Formally verified C compiler, proving that compilers with formal verification are practically possible.",
+    ref_quipper:"Quantum languages with linear types — the basis for treating qubits as non-clonable resources in L.O.",
+    ref_jvm:"Prototypes for adaptive JIT optimizations at runtime, inline caching and type-based specialization.",
+    ref_esquema:"Scheme dialect with Spanish keywords — proof that languages with multilingual syntax are viable.",
+    ref_openqasm:"The de facto standard for quantum circuits, chosen as the output format for L.O.'s quantum backend.",
+    footer_meta:"Technical Documentation v4.0 · April 2026 · Apache 2.0 License",
+    footer_author:'Created by <strong>Claudiu Groza (Vemeth)</strong> · Open project for international collaboration',
+    footer_quote:'"Every human mind deserves to program in its own language."'
+  },
+  ro: {
+    nav_philosophy:"Filosofie", nav_arch:"Arhitectură", nav_syntax:"Sintaxă", nav_types:"Tipuri",
+    nav_quantum:"Cuantic", nav_db:"LinguaDB", nav_demo:"Demo", nav_ecosystem:"Ecosistem", nav_roadmap:"Roadmap",
+    hero_eyebrow:"Specificație Tehnică",
+    hero_title_line1:"Programează în", hero_title_line2:"orice limbă umană.",
+    hero_sub:'Un limbaj de programare universal — multilingv, multi-arhitectură, cu baze de date integrate și calcul cuantic-hibrid nativ. Creat de <strong>Claudiu Groza (Vemeth)</strong>.',
+    tag_langs:"🌍 30+ Limbi Naturale", tag_quantum:"⚛️ Cuantic-Hibrid",
+    tag_db:"🗄️ LinguaDB Nativ", tag_jit:"⚡ JIT Adaptiv", tag_ai:"🤖 Extensibil cu AI", tag_types:"🔒 Tipuri Liniare",
+    stat_langs:"Limbi Naturale", stat_arch:"Arhitecturi Hardware", stat_layers:"Straturi Compilator", stat_poss:"Posibilități",
+    sec01_label:"01 · Filosofie", sec01_title:"De ce Lingua Omnibus?",
+    sec01_p1:'Există astăzi aproximativ <strong>700 de milioane de programatori</strong> potențiali care nu au acces la programare deoarece bariera lingvistică îi exclude. Toate limbajele de programare moderne sunt, în esență, dialecte ale englezei.',
+    sec01_p2:"Lingua Omnibus rupe această tradiție. Semantica rămâne universală, dar sintaxa este expresia limbii tale materne.",
+    vision_label:"Viziunea:", vision_text:"Același program, scris în română, japoneză, arabă sau swahili, produce cod mașină identic și optim. Limbajul nu este un obstacol — este un pod.",
+    p1_title:"Accesibilitate Lingvistică Universală", p1_body:"Cuvintele cheie sunt mapate din orice limbă naturală la tokeni abstracti interni. Nucleul semantic este complet izolat de limbă.",
+    p2_title:"Portabilitate Hardware Totală", p2_body:"Compilare nativă pentru x86-64, ARM, RISC-V, PowerPC și QPU. Un singur fișier sursă, orice țintă.",
+    p3_title:"Persistență Nativă fără Fricțiune", p3_body:"Motor de baze de date ACID integrat direct în limbaj. Nu mai există impedanța obiect-relațional.",
+    p4_title:"Adaptabilitate Intrinsecă", p4_body:"JIT pe niveluri, adaptori hardware, specializare după context. Codul se optimizează singur în funcție de mașina pe care rulează.",
+    p5_title:"Corectitudine Verificabilă", p5_body:"Tipuri liniare pentru qubiți (teorema non-clonării), sistem de tipuri static cu inferență, LIR formal verificabil.",
+    sec02_label:"02 · Arhitectură", sec02_title:"Trei straturi. O semantică.",
+    sec02_p:"Separarea strictă permite ca același cod semantic să fie compilat pentru orice țintă hardware, iar frontend-ul să fie complet înlocuibil fără a afecta restul pipeline-ului.",
+    l1_label:"Stratul 1 · Frontend", l1_title:"Suprafața Multilingvă — Parsere per Limbă Naturală",
+    more_lang:"altele", l1_desc:'Fiecare parser produce același AST unificat. Detecție automată a limbii sau directivă explicită <code>#lingua: XX</code>.',
+    l2_label:"Stratul 2 · Nucleu Semantic", l2_desc:"Static tipizat, independent de limbă și arhitectură. Bazat pe un subset MLIR cu dialecte pentru cuantic și BD.",
+    l3_label:"Stratul 3 · Backend", l3_title:"Execuție Multi-Țintă",
+    sec03_label:"03 · Sintaxă", sec03_title:"Același program. Șase limbi.",
+    sec03_p:'Compilatorul detectează automat limba din token-uri sau prin directiva <code>#lingua: RO</code>. Fiecare limbă are un fișier de mapare lexicală.',
+    same_semantics:"semantică identică, compilare identică",
+    sec04_label:"04 · Sistem de Tipuri", sec04_title:"Static. Sigur. Universal.",
+    sec04_p:'Toate numele de tipuri sunt traductibile. Compilatorul recunoaște <code>Integer</code>, <code>Entier</code>, <code>Ganzzahl</code>, <code>整数</code> și <code>Întreg</code> ca același primitiv.',
+    types_prim:"Primitive", types_comp:"Compuse", types_lin:"Liniare (Cuantice)",
+    effects_title:"Noutate v4.0: Tipuri Afine &amp; Efecte Algebrice",
+    sec05_label:"05 · Calcul Cuantic-Hibrid", sec05_title:"Qubiții sunt cetățeni de prima clasă.",
+    sec05_p:'L.O. tratează qubiții ca resurse liniare verificate la compilare. Blocurile <code>cuantic { ... }</code> sunt compilate în circuite OpenQASM 3.0 și pot rula pe simulatoare locale sau QPU-uri cloud (IBM, IonQ, Rigetti, Azure Quantum).',
+    bell_title:"Circuit Bell — Exemple Multilingvă",
+    compile_guarantee:"Garanție la compilare:", qubit_note:'Tipul <code>Qubit</code> este liniar — compilatorul respinge orice tentativă de copiere sau re-măsurare a unui qubit, respectând teorema non-clonării.',
+    qhw_title:"Backend-uri Hardware Cuantice", qubits_col:"Nr. Qubiți", local_sim:"Simulator local",
+    sec06_label:"06 · LinguaDB", sec06_title:"Baze de date ca sintaxă nativă.",
+    sec06_p:"LinguaDB este un motor ACID integrat direct în compilator. Schemele sunt verificate static la compilare, nu la rulare. Suportă modele relaționale, documente JSON și indecși vectoriali pentru căutare semantică.",
+    relational_ops:"Operații Relaționale", vector_search:"Căutare Vectorială Semantică",
+    schema_guarantee:"Schema verificată la compilare:", schema_note:"Dacă accesezi un câmp inexistent, compilatorul produce o eroare — nu un crash la rulare. LinguaDB elimină complet runtime SQL injection prin parametrizare implicită.",
+    sec07_label:"07 · Demo Interactiv", sec07_title:"Alege o limbă. Citește codul.",
+    sec07_p:"Exemplele de mai jos arată același program complet — înregistrare utilizator cu validare și persistență — în șase limbi.",
+    sec08_label:"08 · Comparație", sec08_title:"L.O. față de alternativele existente.",
+    feature_col:"Caracteristică",
+    feat1:"Sintaxă multilingvă nativă", feat2:"Calcul cuantic integrat", feat3:"BD nativă fără ORM",
+    feat4:"Tipuri liniare pentru qubiți", feat5:"Compilare nativă multi-arch", feat6:"JIT adaptiv",
+    feat7:"Verificare formală LIR", feat8:"Schema BD verificată static",
+    sec09_label:"09 · Ecosistem", sec09_title:"Unelte gândite pentru toate limbile.",
+    tool_compiler:"Compilatorul Principal", tool_compiler_desc:"Frontend multilingv + LIR + backend hardware. Detecție automată a limbii, raportare erori în limba sursă, suport cross-compilation.",
+    tool_pm:"Manager de Pachete", tool_pm_desc:"Registry multilingual. Pachetele pot fi scrise în orice limbă naturală și consumate în oricare alta. Rezoluție semantică, nu textuală.",
+    tool_fmt:"Formatter", tool_fmt_desc:"Formatare cod care respectă convențiile limbii naturale alese. Suport diacritice, RTL (arabă, ebraică), scripturi non-latine.",
+    tool_lsp:"Language Server", tool_lsp_desc:"Autocompletare, diagnostice, hover, rename — toate în limba naturală a sursei. Compatibil VSCode, Neovim, JetBrains, Emacs.",
+    tool_doc:"Generator Documentație", tool_doc_desc:"Generează documentație HTML/Markdown în limba sursă a codului. Traduce automat comentariile în alte limbi la cerere.",
+    tool_test:"Framework Testare", tool_test_desc:"Teste unitare, de integrare și de proprietăți în limba naturală. Rapoarte multilingve.",
+    sec10_label:"10 · Roadmap", sec10_title:"Ce urmează pentru L.O.",
+    phase1_label:"Faza 1 · 2025 Q1–Q2 ✓", phase1_title:"Fundații — Specificație & Prototip", phase1_desc:"Specificație formală LIR, parser prototip pentru RO/EN/ES/FR/JA, LinguaDB relațional de bază, sistem de tipuri static.",
+    phase2_label:"Faza 2 · 2025 Q3–Q4", phase2_title:"Compilator complet & Backend x86_64", phase2_desc:'Pipeline compilator end-to-end, backend x86_64 cu AVX-512, JIT pe niveluri, <code>loc</code> și <code>lopm</code> funcționale, suport 10 limbi.',
+    phase3_label:"Faza 3 · 2026 Q1–Q2", phase3_title:"Multi-Arhitectură & Cuantic", phase3_desc:"Backend ARM/RISC-V/PowerPC, integrare QPU IBM+IonQ, indecși vectoriali LinguaDB, sistem efecte algebrice, Language Server.",
+    phase4_label:"Faza 4 · 2026 Q3–Q4", phase4_title:"Ecosistem & Comunitate", phase4_desc:"30+ limbi naturale, registry pachete public, plugin-uri IDE, documentație interactivă, primele proiecte open-source în L.O.",
+    phase5_label:"Faza 5 · 2027+", phase5_title:"Verificare Formală & AI-Assisted", phase5_desc:"Prover integrat pentru LIR, generare de cod asistată de LLM în orice limbă naturală, suport pentru limbi cu scriere RTL și ideografică nativă.",
+    planned_langs_title:"Limbile Planificate v4.1+", planned_langs_desc:"Prin contribuții comunitare, L.O. vizează 50 de limbi naturale până în 2027:",
+    contrib_title:"Contribuiți la L.O.", contrib_desc:"Adăugarea unui dialect nou necesită un singur fișier JSON de mapare lexicală și teste de regresie. Nu se modifică compilatorul.",
+    collab_title:"Căutăm colaboratori", collab_desc:"pentru backend-uri noi (GPU CUDA, WebGPU), limbi naturale neacoperite și verificare formală a LIR. Licență Apache 2.0.",
+    sec11_label:"11 · Referințe", sec11_title:"Fundamente teoretice.",
+    ref_llvm:"Infrastructura de compilatoare cu reprezentări intermediare extensibile. LIR este un dialect MLIR cu extensii pentru cuantic și BD.",
+    ref_compcert:"Compilator C verificat formal, demonstrând că compilatoarele cu verificare formală sunt posibile în practică.",
+    ref_quipper:"Limbaje cuantice cu tipuri liniare — baza pentru tratamentul qubiților ca resurse non-clonabile în L.O.",
+    ref_jvm:"Prototipuri pentru optimizări adaptive JIT la runtime, inline caching și specializare după tipuri.",
+    ref_esquema:"Dialect Scheme cu cuvinte cheie în spaniolă — dovadă că limbajele cu sintaxă multilingvă sunt viabile.",
+    ref_openqasm:"Standardul de facto pentru circuite cuantice, ales ca format de ieșire pentru backend-ul cuantic L.O.",
+    footer_meta:"Documentație Tehnică v4.0 · Aprilie 2026 · Licență Apache 2.0",
+    footer_author:'Creat de <strong>Claudiu Groza (Vemeth)</strong> · Proiect deschis pentru colaborare internațională',
+    footer_quote:'"Orice minte umană merită să programeze în propria limbă."'
+  },
+  fr: {
+    nav_philosophy:"Philosophie", nav_arch:"Architecture", nav_syntax:"Syntaxe", nav_types:"Types",
+    nav_quantum:"Quantique", nav_db:"LinguaDB", nav_demo:"Démo", nav_ecosystem:"Écosystème", nav_roadmap:"Feuille de route",
+    hero_eyebrow:"Spécification Technique",
+    hero_title_line1:"Programmez dans", hero_title_line2:"n'importe quelle langue humaine.",
+    hero_sub:'Un langage de programmation universel — multilingue, multi-architecture, avec bases de données intégrées et calcul quantique hybride natif. Créé par <strong>Claudiu Groza (Vemeth)</strong>.',
+    tag_langs:"🌍 30+ Langues Naturelles", tag_quantum:"⚛️ Hybride Quantique",
+    tag_db:"🗄️ LinguaDB Natif", tag_jit:"⚡ JIT Adaptatif", tag_ai:"🤖 Extensible IA", tag_types:"🔒 Types Linéaires",
+    stat_langs:"Langues Naturelles", stat_arch:"Architectures Matérielles", stat_layers:"Couches Compilateur", stat_poss:"Possibilités",
+    sec01_label:"01 · Philosophie", sec01_title:"Pourquoi Lingua Omnibus ?",
+    sec01_p1:'Il existe aujourd\'hui environ <strong>700 millions de programmeurs potentiels</strong> exclus de la programmation par la barrière linguistique. Tous les langages modernes sont, en essence, des dialectes de l\'anglais.',
+    sec01_p2:"Lingua Omnibus rompt cette tradition. La sémantique reste universelle, mais la syntaxe est l'expression de votre langue maternelle.",
+    vision_label:"Vision :", vision_text:"Le même programme, écrit en roumain, japonais, arabe ou swahili, produit un code machine identique et optimisé. Le langage n'est pas un obstacle — c'est un pont.",
+    p1_title:"Accessibilité Linguistique Universelle", p1_body:"Les mots-clés sont mappés de n'importe quelle langue naturelle vers des tokens abstraits internes. Le noyau sémantique est complètement isolé de la langue.",
+    p2_title:"Portabilité Matérielle Totale", p2_body:"Compilation native pour x86-64, ARM, RISC-V, PowerPC et QPU. Un seul fichier source, n'importe quelle cible.",
+    p3_title:"Persistance Native sans Friction", p3_body:"Moteur de base de données ACID intégré directement dans le langage. Plus d'inadéquation objet-relationnel.",
+    p4_title:"Adaptabilité Intrinsèque", p4_body:"JIT à niveaux, adaptateurs matériels, spécialisation contextuelle. Le code s'auto-optimise selon la machine cible.",
+    p5_title:"Exactitude Vérifiable", p5_body:"Types linéaires pour les qubits (théorème de non-clonage), système de types statique avec inférence, LIR formellement vérifiable.",
+    sec02_label:"02 · Architecture", sec02_title:"Trois couches. Une sémantique.",
+    sec02_p:"La séparation stricte permet au même code sémantique de compiler vers n'importe quelle cible matérielle, tandis que le frontend est entièrement remplaçable sans affecter le reste du pipeline.",
+    l1_label:"Couche 1 · Frontend", l1_title:"Surface Multilingue — Parseurs par Langue",
+    more_lang:"autres", l1_desc:'Chaque parseur produit le même AST unifié. Détection automatique de la langue ou directive explicite <code>#lingua: XX</code>.',
+    l2_label:"Couche 2 · Noyau Sémantique", l2_desc:"Typé statiquement, indépendant de la langue et de l'architecture. Basé sur un sous-ensemble MLIR avec des dialectes quantiques et BD.",
+    l3_label:"Couche 3 · Backend", l3_title:"Exécution Multi-Cible",
+    sec03_label:"03 · Syntaxe", sec03_title:"Même programme. Six langues.",
+    sec03_p:'Le compilateur détecte automatiquement la langue depuis les tokens ou via la directive <code>#lingua: FR</code>. Chaque langue a un fichier de mappage lexical.',
+    same_semantics:"sémantique identique, compilé identiquement",
+    sec04_label:"04 · Système de Types", sec04_title:"Statique. Sûr. Universel.",
+    sec04_p:'Tous les noms de types sont traduisibles. Le compilateur reconnaît <code>Integer</code>, <code>Entier</code>, <code>Ganzzahl</code>, <code>整数</code> et <code>Întreg</code> comme le même primitif.',
+    types_prim:"Primitifs", types_comp:"Composés", types_lin:"Linéaires (Quantiques)",
+    effects_title:"Nouveau v4.0 : Types Affins &amp; Effets Algébriques",
+    sec05_label:"05 · Calcul Quantique Hybride", sec05_title:"Les qubits sont des citoyens de première classe.",
+    sec05_p:'L.O. traite les qubits comme des ressources linéaires vérifiées à la compilation. Les blocs <code>quantum { ... }</code> sont compilés en circuits OpenQASM 3.0 et peuvent s\'exécuter sur des simulateurs locaux ou des QPU cloud.',
+    bell_title:"Circuit de Bell — Exemples Multilingues",
+    compile_guarantee:"Garantie à la compilation :", qubit_note:'Le type <code>Qubit</code> est linéaire — le compilateur rejette toute tentative de copie ou de re-mesure d\'un qubit, respectant le théorème de non-clonage.',
+    qhw_title:"Backends Matériels Quantiques", qubits_col:"Nb. Qubits", local_sim:"Simulateur local",
+    sec06_label:"06 · LinguaDB", sec06_title:"Bases de données comme syntaxe native.",
+    sec06_p:"LinguaDB est un moteur ACID intégré directement dans le compilateur. Les schémas sont vérifiés statiquement à la compilation. Supporte les modèles relationnels, JSON et les index vectoriels.",
+    relational_ops:"Opérations Relationnelles", vector_search:"Recherche Sémantique Vectorielle",
+    schema_guarantee:"Schéma vérifié à la compilation :", schema_note:"Si vous accédez à un champ inexistant, le compilateur produit une erreur — pas un crash à l'exécution. LinguaDB élimine complètement l'injection SQL par paramétrage implicite.",
+    sec07_label:"07 · Démo Interactive", sec07_title:"Choisissez une langue. Lisez le code.",
+    sec07_p:"Les exemples ci-dessous montrent le même programme complet — inscription utilisateur avec validation et persistance — en six langues naturelles.",
+    sec08_label:"08 · Comparaison", sec08_title:"L.O. face aux alternatives existantes.",
+    feature_col:"Fonctionnalité",
+    feat1:"Syntaxe multilingue native", feat2:"Calcul quantique intégré", feat3:"BD native sans ORM",
+    feat4:"Types linéaires pour qubits", feat5:"Compilation native multi-arch", feat6:"JIT adaptatif",
+    feat7:"Vérification formelle LIR", feat8:"Schéma BD vérifié statiquement",
+    sec09_label:"09 · Écosystème", sec09_title:"Outils conçus pour toutes les langues.",
+    tool_compiler:"Compilateur Principal", tool_compiler_desc:"Frontend multilingue + LIR + backend matériel. Détection automatique de la langue, rapports d'erreurs dans la langue source, support cross-compilation.",
+    tool_pm:"Gestionnaire de Paquets", tool_pm_desc:"Registre multilingue. Les paquets peuvent être écrits dans n'importe quelle langue naturelle et consommés dans n'importe quelle autre.",
+    tool_fmt:"Formateur", tool_fmt_desc:"Formatage de code respectant les conventions de la langue naturelle choisie. Support des diacritiques, RTL (arabe, hébreu), scripts non-latins.",
+    tool_lsp:"Serveur de Langage", tool_lsp_desc:"Autocomplétion, diagnostics, survol, renommage — tout dans la langue naturelle de la source. Compatible VSCode, Neovim, JetBrains, Emacs.",
+    tool_doc:"Générateur de Documentation", tool_doc_desc:"Génère de la documentation HTML/Markdown dans la langue source du code. Traduit automatiquement les commentaires sur demande.",
+    tool_test:"Framework de Tests", tool_test_desc:"Tests unitaires, d'intégration et basés sur les propriétés en langue naturelle. Rapports multilingues.",
+    sec10_label:"10 · Feuille de route", sec10_title:"La suite pour L.O.",
+    phase1_label:"Phase 1 · 2025 Q1–Q2 ✓", phase1_title:"Fondations — Spécification & Prototype", phase1_desc:"Spécification formelle LIR, parseur prototype pour RO/EN/ES/FR/JA, LinguaDB relationnel de base, système de types statique.",
+    phase2_label:"Phase 2 · 2025 Q3–Q4", phase2_title:"Compilateur complet & Backend x86_64", phase2_desc:'Pipeline compilateur end-to-end, backend x86_64 avec AVX-512, JIT à niveaux, <code>loc</code> et <code>lopm</code> fonctionnels, support 10 langues.',
+    phase3_label:"Phase 3 · 2026 Q1–Q2", phase3_title:"Multi-Architecture & Quantique", phase3_desc:"Backends ARM/RISC-V/PowerPC, intégration QPU IBM+IonQ, index vectoriels LinguaDB, système d'effets algébriques, Serveur de Langage.",
+    phase4_label:"Phase 4 · 2026 Q3–Q4", phase4_title:"Écosystème & Communauté", phase4_desc:"30+ langues naturelles, registre de paquets public, plugins IDE, documentation interactive, premiers projets open-source en L.O.",
+    phase5_label:"Phase 5 · 2027+", phase5_title:"Vérification Formelle & IA-Assistée", phase5_desc:"Prouveur LIR intégré, génération de code assistée par LLM en toute langue naturelle, support natif RTL et scripts idéographiques.",
+    planned_langs_title:"Langues Prévues v4.1+", planned_langs_desc:"Grâce aux contributions communautaires, L.O. vise 50 langues naturelles d'ici 2027 :",
+    contrib_title:"Contribuer à L.O.", contrib_desc:"L'ajout d'un nouveau dialecte nécessite un seul fichier JSON de mappage lexical et des tests de régression. Aucune modification du compilateur.",
+    collab_title:"Cherchons des collaborateurs", collab_desc:"pour de nouveaux backends (GPU CUDA, WebGPU), des langues naturelles non couvertes et la vérification formelle du LIR. Licence Apache 2.0.",
+    sec11_label:"11 · Références", sec11_title:"Fondements théoriques.",
+    ref_llvm:"Infrastructure de compilateurs avec représentations intermédiaires extensibles. LIR est un dialecte MLIR avec des extensions quantiques et BD.",
+    ref_compcert:"Compilateur C formellement vérifié, prouvant que les compilateurs avec vérification formelle sont possibles en pratique.",
+    ref_quipper:"Langages quantiques avec types linéaires — la base pour traiter les qubits comme des ressources non-clonables dans L.O.",
+    ref_jvm:"Prototypes pour les optimisations JIT adaptatives à l'exécution, le cache inline et la spécialisation par type.",
+    ref_esquema:"Dialecte Scheme avec mots-clés en espagnol — preuve que les langages à syntaxe multilingue sont viables.",
+    ref_openqasm:"Le standard de facto pour les circuits quantiques, choisi comme format de sortie pour le backend quantique de L.O.",
+    footer_meta:"Documentation Technique v4.0 · Avril 2026 · Licence Apache 2.0",
+    footer_author:'Créé par <strong>Claudiu Groza (Vemeth)</strong> · Projet ouvert à la collaboration internationale',
+    footer_quote:'"Chaque esprit humain mérite de programmer dans sa propre langue."'
+  },
+  de: {
+    nav_philosophy:"Philosophie", nav_arch:"Architektur", nav_syntax:"Syntax", nav_types:"Typen",
+    nav_quantum:"Quantencomputing", nav_db:"LinguaDB", nav_demo:"Demo", nav_ecosystem:"Ökosystem", nav_roadmap:"Roadmap",
+    hero_eyebrow:"Technische Spezifikation",
+    hero_title_line1:"Programmieren in", hero_title_line2:"jeder menschlichen Sprache.",
+    hero_sub:'Eine universelle Programmiersprache — mehrsprachig, multi-architektur, mit integrierten Datenbanken und nativem hybridem Quantencomputing. Erstellt von <strong>Claudiu Groza (Vemeth)</strong>.',
+    tag_langs:"🌍 30+ Natürliche Sprachen", tag_quantum:"⚛️ Hybrid-Quanten",
+    tag_db:"🗄️ Natives LinguaDB", tag_jit:"⚡ Adaptives JIT", tag_ai:"🤖 KI-Erweiterbar", tag_types:"🔒 Lineare Typen",
+    stat_langs:"Natürliche Sprachen", stat_arch:"Hardware-Architekturen", stat_layers:"Compiler-Ebenen", stat_poss:"Möglichkeiten",
+    sec01_label:"01 · Philosophie", sec01_title:"Warum Lingua Omnibus?",
+    sec01_p1:'Es gibt heute etwa <strong>700 Millionen potenzielle Programmierer</strong>, die durch die Sprachbarriere vom Programmieren ausgeschlossen werden. Alle modernen Programmiersprachen sind im Wesentlichen Dialekte des Englischen.',
+    sec01_p2:"Lingua Omnibus bricht diese Tradition. Die Semantik bleibt universal, aber die Syntax ist der Ausdruck Ihrer Muttersprache.",
+    vision_label:"Vision:", vision_text:"Dasselbe Programm, geschrieben auf Rumänisch, Japanisch, Arabisch oder Swahili, erzeugt identischen, optimierten Maschinencode. Sprache ist kein Hindernis — sie ist eine Brücke.",
+    p1_title:"Universelle sprachliche Zugänglichkeit", p1_body:"Schlüsselwörter werden aus jeder natürlichen Sprache auf interne abstrakte Tokens abgebildet. Der semantische Kern ist vollständig von der Sprache isoliert.",
+    p2_title:"Vollständige Hardware-Portabilität", p2_body:"Native Kompilierung für x86-64, ARM, RISC-V, PowerPC und QPU. Eine Quelldatei, jedes Ziel.",
+    p3_title:"Native Persistenz ohne Reibung", p3_body:"ACID-Datenbank-Engine direkt in die Sprache integriert. Keine Objekt-relationale Impedanzanpassung mehr.",
+    p4_title:"Intrinsische Anpassungsfähigkeit", p4_body:"Mehrstufiges JIT, Hardware-Adapter, kontextbewusste Spezialisierung. Code optimiert sich selbst basierend auf der Zielmaschine.",
+    p5_title:"Verifizierbare Korrektheit", p5_body:"Lineare Typen für Qubits (Nicht-Klonungstheorem), statisches Typsystem mit Inferenz, formal verifizierbares LIR.",
+    sec02_label:"02 · Architektur", sec02_title:"Drei Ebenen. Eine Semantik.",
+    sec02_p:"Die strikte Trennung ermöglicht es, denselben semantischen Code für jedes Hardware-Ziel zu kompilieren, während das Frontend vollständig ersetzbar ist, ohne die restliche Pipeline zu beeinflussen.",
+    l1_label:"Ebene 1 · Frontend", l1_title:"Mehrsprachige Oberfläche — Sprachspezifische Parser",
+    more_lang:"weitere", l1_desc:'Jeder Parser erzeugt denselben einheitlichen AST. Automatische Spracherkennung oder explizite Direktive <code>#lingua: XX</code>.',
+    l2_label:"Ebene 2 · Semantischer Kern", l2_desc:"Statisch typisiert, sprach- und architekturunabhängig. Basiert auf einem MLIR-Subset mit Quanten- und DB-Dialekten.",
+    l3_label:"Ebene 3 · Backend", l3_title:"Multi-Ziel-Ausführung",
+    sec03_label:"03 · Syntax", sec03_title:"Gleiches Programm. Sechs Sprachen.",
+    sec03_p:'Der Compiler erkennt die Sprache automatisch aus Tokens oder über die Direktive <code>#lingua: DE</code>. Jede Sprache hat eine lexikalische Mapping-Datei.',
+    same_semantics:"identische Semantik, identisch kompiliert",
+    sec04_label:"04 · Typsystem", sec04_title:"Statisch. Sicher. Universal.",
+    sec04_p:'Alle Typnamen sind übersetzbar. Der Compiler kennt <code>Integer</code>, <code>Entier</code>, <code>Ganzzahl</code>, <code>整数</code> und <code>Întreg</code> als dasselbe Primitiv.',
+    types_prim:"Primitive", types_comp:"Zusammengesetzt", types_lin:"Linear (Quanten)",
+    effects_title:"Neu in v4.0: Affine Typen &amp; Algebraische Effekte",
+    sec05_label:"05 · Hybrides Quantencomputing", sec05_title:"Qubits sind erstklassige Bürger.",
+    sec05_p:'L.O. behandelt Qubits als lineare Ressourcen, die zur Kompilierzeit verifiziert werden. <code>quantum { ... }</code>-Blöcke werden in OpenQASM 3.0-Schaltkreise kompiliert.',
+    bell_title:"Bell-Schaltkreis — Mehrsprachige Beispiele",
+    compile_guarantee:"Kompilierzeit-Garantie:", qubit_note:'Der Typ <code>Qubit</code> ist linear — der Compiler weist jeden Versuch zurück, ein Qubit zu kopieren oder neu zu messen, und respektiert damit das Nicht-Klonungstheorem.',
+    qhw_title:"Quanten-Hardware-Backends", qubits_col:"Anzahl Qubits", local_sim:"Lokaler Simulator",
+    sec06_label:"06 · LinguaDB", sec06_title:"Datenbanken als native Syntax.",
+    sec06_p:"LinguaDB ist eine ACID-Engine, die direkt in den Compiler integriert ist. Schemata werden statisch zur Kompilierzeit verifiziert, nicht zur Laufzeit.",
+    relational_ops:"Relationale Operationen", vector_search:"Vektorielle Semantiksuche",
+    schema_guarantee:"Schema zur Kompilierzeit verifiziert:", schema_note:"Wenn Sie auf ein nicht vorhandenes Feld zugreifen, erzeugt der Compiler einen Fehler — keinen Laufzeit-Absturz. LinguaDB eliminiert SQL-Injection vollständig durch implizite Parametrisierung.",
+    sec07_label:"07 · Interaktive Demo", sec07_title:"Wählen Sie eine Sprache. Lesen Sie den Code.",
+    sec07_p:"Die folgenden Beispiele zeigen dasselbe vollständige Programm — Benutzerregistrierung mit Validierung und Persistenz — in sechs natürlichen Sprachen.",
+    sec08_label:"08 · Vergleich", sec08_title:"L.O. vs. bestehende Alternativen.",
+    feature_col:"Merkmal",
+    feat1:"Native mehrsprachige Syntax", feat2:"Integriertes Quantencomputing", feat3:"Native DB ohne ORM",
+    feat4:"Lineare Typen für Qubits", feat5:"Native Multi-Arch-Kompilierung", feat6:"Adaptives JIT",
+    feat7:"LIR formale Verifikation", feat8:"Statische Schema-Verifikation",
+    sec09_label:"09 · Ökosystem", sec09_title:"Werkzeuge für alle Sprachen.",
+    tool_compiler:"Hauptcompiler", tool_compiler_desc:"Mehrsprachiges Frontend + LIR + Hardware-Backend. Automatische Spracherkennung, Fehlermeldungen in der Quellsprache, Cross-Compilation-Unterstützung.",
+    tool_pm:"Paketmanager", tool_pm_desc:"Mehrsprachiges Registry. Pakete können in jeder natürlichen Sprache geschrieben und in jeder anderen verwendet werden.",
+    tool_fmt:"Formatierer", tool_fmt_desc:"Code-Formatierung unter Berücksichtigung der Konventionen der gewählten natürlichen Sprache. Unterstützung für Diakritika, RTL (Arabisch, Hebräisch), nicht-lateinische Schriften.",
+    tool_lsp:"Sprach-Server", tool_lsp_desc:"Autovervollständigung, Diagnose, Hover, Umbenennung — alles in der natürlichen Sprache der Quelle. Kompatibel mit VSCode, Neovim, JetBrains, Emacs.",
+    tool_doc:"Dokumentationsgenerator", tool_doc_desc:"Generiert HTML/Markdown-Dokumentation in der Quellsprache des Codes. Übersetzt Kommentare auf Anfrage automatisch in andere Sprachen.",
+    tool_test:"Test-Framework", tool_test_desc:"Unit-, Integrations- und eigenschaftsbasierte Tests in natürlicher Sprache. Mehrsprachige Berichte.",
+    sec10_label:"10 · Roadmap", sec10_title:"Was kommt als nächstes für L.O.",
+    phase1_label:"Phase 1 · 2025 Q1–Q2 ✓", phase1_title:"Fundamente — Spezifikation & Prototyp", phase1_desc:"Formale LIR-Spezifikation, Prototyp-Parser für RO/EN/ES/FR/JA, grundlegendes relationales LinguaDB, statisches Typsystem.",
+    phase2_label:"Phase 2 · 2025 Q3–Q4", phase2_title:"Vollständiger Compiler & x86_64-Backend", phase2_desc:'End-to-End-Compiler-Pipeline, x86_64-Backend mit AVX-512, mehrstufiges JIT, funktionale <code>loc</code> und <code>lopm</code>, Unterstützung für 10 Sprachen.',
+    phase3_label:"Phase 3 · 2026 Q1–Q2", phase3_title:"Multi-Architektur & Quanten", phase3_desc:"ARM/RISC-V/PowerPC-Backends, IBM+IonQ QPU-Integration, LinguaDB-Vektorindizes, algebraisches Effektsystem, Sprach-Server.",
+    phase4_label:"Phase 4 · 2026 Q3–Q4", phase4_title:"Ökosystem & Community", phase4_desc:"30+ natürliche Sprachen, öffentliches Paket-Registry, IDE-Plugins, interaktive Dokumentation, erste Open-Source-Projekte in L.O.",
+    phase5_label:"Phase 5 · 2027+", phase5_title:"Formale Verifikation & KI-unterstützt", phase5_desc:"Integrierter LIR-Beweiser, LLM-unterstützte Code-Generierung in jeder natürlichen Sprache, native RTL- und ideografische Schriftunterstützung.",
+    planned_langs_title:"Geplante Sprachen v4.1+", planned_langs_desc:"Durch Community-Beiträge strebt L.O. bis 2027 50 natürliche Sprachen an:",
+    contrib_title:"Zu L.O. beitragen", contrib_desc:"Das Hinzufügen eines neuen Dialekts erfordert eine einzige JSON-Lexikal-Mapping-Datei und Regressionstests. Keine Compiler-Änderungen nötig.",
+    collab_title:"Suche Mitarbeiter", collab_desc:"für neue Backends (GPU CUDA, WebGPU), nicht abgedeckte natürliche Sprachen und formale LIR-Verifikation. Apache 2.0-Lizenz.",
+    sec11_label:"11 · Referenzen", sec11_title:"Theoretische Grundlagen.",
+    ref_llvm:"Compiler-Infrastruktur mit erweiterbaren Zwischenrepräsentationen. LIR ist ein MLIR-Dialekt mit Quanten- und DB-Erweiterungen.",
+    ref_compcert:"Formal verifizierter C-Compiler, der beweist, dass Compiler mit formaler Verifikation in der Praxis möglich sind.",
+    ref_quipper:"Quantensprachen mit linearen Typen — die Grundlage für die Behandlung von Qubits als nicht-klonbare Ressourcen in L.O.",
+    ref_jvm:"Prototypen für adaptive JIT-Optimierungen zur Laufzeit, Inline-Caching und typbasierte Spezialisierung.",
+    ref_esquema:"Scheme-Dialekt mit spanischen Schlüsselwörtern — Beweis, dass Sprachen mit mehrsprachiger Syntax realisierbar sind.",
+    ref_openqasm:"Der De-facto-Standard für Quantenschaltkreise, gewählt als Ausgabeformat für das Quanten-Backend von L.O.",
+    footer_meta:"Technische Dokumentation v4.0 · April 2026 · Apache 2.0-Lizenz",
+    footer_author:'Erstellt von <strong>Claudiu Groza (Vemeth)</strong> · Offenes Projekt für internationale Zusammenarbeit',
+    footer_quote:'"Jeder menschliche Geist verdient es, in seiner eigenen Sprache zu programmieren."'
+  },
+  es: {
+    nav_philosophy:"Filosofía", nav_arch:"Arquitectura", nav_syntax:"Sintaxis", nav_types:"Tipos",
+    nav_quantum:"Cuántico", nav_db:"LinguaDB", nav_demo:"Demo", nav_ecosystem:"Ecosistema", nav_roadmap:"Hoja de ruta",
+    hero_eyebrow:"Especificación Técnica",
+    hero_title_line1:"Programa en", hero_title_line2:"cualquier lengua humana.",
+    hero_sub:'Un lenguaje de programación universal — multilingüe, multi-arquitectura, con bases de datos integradas y computación cuántica híbrida nativa. Creado por <strong>Claudiu Groza (Vemeth)</strong>.',
+    tag_langs:"🌍 30+ Idiomas Naturales", tag_quantum:"⚛️ Cuántico-Híbrido",
+    tag_db:"🗄️ LinguaDB Nativo", tag_jit:"⚡ JIT Adaptativo", tag_ai:"🤖 Extensible con IA", tag_types:"🔒 Tipos Lineales",
+    stat_langs:"Idiomas Naturales", stat_arch:"Arquitecturas Hardware", stat_layers:"Capas Compilador", stat_poss:"Posibilidades",
+    sec01_label:"01 · Filosofía", sec01_title:"¿Por qué Lingua Omnibus?",
+    sec01_p1:'Existen aproximadamente <strong>700 millones de programadores potenciales</strong> que quedan excluidos de la programación por la barrera del idioma. Todos los lenguajes modernos son, en esencia, dialectos del inglés.',
+    sec01_p2:"Lingua Omnibus rompe esta tradición. La semántica permanece universal, pero la sintaxis es la expresión de tu lengua materna.",
+    vision_label:"Visión:", vision_text:"El mismo programa, escrito en rumano, japonés, árabe o swahili, produce código máquina idéntico y óptimo. El idioma no es un obstáculo — es un puente.",
+    p1_title:"Accesibilidad Lingüística Universal", p1_body:"Las palabras clave se mapean desde cualquier idioma natural a tokens abstractos internos. El núcleo semántico está completamente aislado del idioma.",
+    p2_title:"Portabilidad Hardware Total", p2_body:"Compilación nativa para x86-64, ARM, RISC-V, PowerPC y QPU. Un solo archivo fuente, cualquier objetivo.",
+    p3_title:"Persistencia Nativa sin Fricción", p3_body:"Motor de base de datos ACID integrado directamente en el lenguaje. No más impedancia objeto-relacional.",
+    p4_title:"Adaptabilidad Intrínseca", p4_body:"JIT por niveles, adaptadores hardware, especialización contextual. El código se auto-optimiza según la máquina destino.",
+    p5_title:"Corrección Verificable", p5_body:"Tipos lineales para qubits (teorema de no-clonación), sistema de tipos estático con inferencia, LIR formalmente verificable.",
+    sec02_label:"02 · Arquitectura", sec02_title:"Tres capas. Una semántica.",
+    sec02_p:"La separación estricta permite que el mismo código semántico compile para cualquier objetivo hardware, mientras que el frontend es completamente reemplazable sin afectar el resto del pipeline.",
+    l1_label:"Capa 1 · Frontend", l1_title:"Superficie Multilingüe — Parsers por Idioma",
+    more_lang:"más", l1_desc:'Cada parser produce el mismo AST unificado. Detección automática del idioma o directiva explícita <code>#lingua: XX</code>.',
+    l2_label:"Capa 2 · Núcleo Semántico", l2_desc:"Tipado estáticamente, independiente del idioma y la arquitectura. Basado en un subconjunto MLIR con dialectos cuánticos y BD.",
+    l3_label:"Capa 3 · Backend", l3_title:"Ejecución Multi-Objetivo",
+    sec03_label:"03 · Sintaxis", sec03_title:"Mismo programa. Seis idiomas.",
+    sec03_p:'El compilador detecta automáticamente el idioma desde los tokens o mediante la directiva <code>#lingua: ES</code>. Cada idioma tiene un archivo de mapeo léxico.',
+    same_semantics:"semántica idéntica, compilado idénticamente",
+    sec04_label:"04 · Sistema de Tipos", sec04_title:"Estático. Seguro. Universal.",
+    sec04_p:'Todos los nombres de tipos son traducibles. El compilador reconoce <code>Integer</code>, <code>Entier</code>, <code>Ganzzahl</code>, <code>整数</code> e <code>Întreg</code> como el mismo primitivo.',
+    types_prim:"Primitivos", types_comp:"Compuestos", types_lin:"Lineales (Cuánticos)",
+    effects_title:"Nuevo en v4.0: Tipos Afines &amp; Efectos Algebraicos",
+    sec05_label:"05 · Computación Cuántica Híbrida", sec05_title:"Los qubits son ciudadanos de primera clase.",
+    sec05_p:'L.O. trata los qubits como recursos lineales verificados en tiempo de compilación. Los bloques <code>quantum { ... }</code> se compilan en circuitos OpenQASM 3.0.',
+    bell_title:"Circuito Bell — Ejemplos Multilingües",
+    compile_guarantee:"Garantía en compilación:", qubit_note:'El tipo <code>Qubit</code> es lineal — el compilador rechaza cualquier intento de copiar o re-medir un qubit, respetando el teorema de no-clonación.',
+    qhw_title:"Backends Hardware Cuánticos", qubits_col:"Nº Qubits", local_sim:"Simulador local",
+    sec06_label:"06 · LinguaDB", sec06_title:"Bases de datos como sintaxis nativa.",
+    sec06_p:"LinguaDB es un motor ACID integrado directamente en el compilador. Los esquemas se verifican estáticamente en tiempo de compilación, no en ejecución.",
+    relational_ops:"Operaciones Relacionales", vector_search:"Búsqueda Semántica Vectorial",
+    schema_guarantee:"Esquema verificado en compilación:", schema_note:"Si accedes a un campo inexistente, el compilador produce un error — no un crash en ejecución. LinguaDB elimina completamente la inyección SQL mediante parametrización implícita.",
+    sec07_label:"07 · Demo Interactivo", sec07_title:"Elige un idioma. Lee el código.",
+    sec07_p:"Los ejemplos siguientes muestran el mismo programa completo — registro de usuario con validación y persistencia — en seis idiomas naturales.",
+    sec08_label:"08 · Comparación", sec08_title:"L.O. frente a las alternativas existentes.",
+    feature_col:"Característica",
+    feat1:"Sintaxis multilingüe nativa", feat2:"Computación cuántica integrada", feat3:"BD nativa sin ORM",
+    feat4:"Tipos lineales para qubits", feat5:"Compilación nativa multi-arch", feat6:"JIT adaptativo",
+    feat7:"Verificación formal LIR", feat8:"Verificación estática de esquema",
+    sec09_label:"09 · Ecosistema", sec09_title:"Herramientas para todos los idiomas.",
+    tool_compiler:"Compilador Principal", tool_compiler_desc:"Frontend multilingüe + LIR + backend hardware. Detección automática del idioma, informes de errores en el idioma fuente, soporte de cross-compilation.",
+    tool_pm:"Gestor de Paquetes", tool_pm_desc:"Registro multilingüe. Los paquetes pueden escribirse en cualquier idioma natural y consumirse en cualquier otro.",
+    tool_fmt:"Formateador", tool_fmt_desc:"Formateo de código que respeta las convenciones del idioma natural elegido. Soporte de diacríticos, RTL (árabe, hebreo), scripts no latinos.",
+    tool_lsp:"Servidor de Lenguaje", tool_lsp_desc:"Autocompletado, diagnósticos, hover, renombrado — todo en el idioma natural de la fuente. Compatible con VSCode, Neovim, JetBrains, Emacs.",
+    tool_doc:"Generador de Documentación", tool_doc_desc:"Genera documentación HTML/Markdown en el idioma fuente del código. Traduce automáticamente los comentarios a otros idiomas bajo demanda.",
+    tool_test:"Framework de Pruebas", tool_test_desc:"Pruebas unitarias, de integración y basadas en propiedades en lenguaje natural. Informes multilingües.",
+    sec10_label:"10 · Hoja de ruta", sec10_title:"Qué sigue para L.O.",
+    phase1_label:"Fase 1 · 2025 Q1–Q2 ✓", phase1_title:"Fundamentos — Especificación & Prototipo", phase1_desc:"Especificación formal LIR, parser prototipo para RO/EN/ES/FR/JA, LinguaDB relacional básico, sistema de tipos estático.",
+    phase2_label:"Fase 2 · 2025 Q3–Q4", phase2_title:"Compilador completo & Backend x86_64", phase2_desc:'Pipeline compilador end-to-end, backend x86_64 con AVX-512, JIT por niveles, <code>loc</code> y <code>lopm</code> funcionales, soporte 10 idiomas.',
+    phase3_label:"Fase 3 · 2026 Q1–Q2", phase3_title:"Multi-Arquitectura & Cuántico", phase3_desc:"Backends ARM/RISC-V/PowerPC, integración QPU IBM+IonQ, índices vectoriales LinguaDB, sistema de efectos algebraicos, Servidor de Lenguaje.",
+    phase4_label:"Fase 4 · 2026 Q3–Q4", phase4_title:"Ecosistema & Comunidad", phase4_desc:"30+ idiomas naturales, registro de paquetes público, plugins IDE, documentación interactiva, primeros proyectos open-source en L.O.",
+    phase5_label:"Fase 5 · 2027+", phase5_title:"Verificación Formal & Asistida por IA", phase5_desc:"Probador LIR integrado, generación de código asistida por LLM en cualquier idioma natural, soporte nativo RTL y scripts ideográficos.",
+    planned_langs_title:"Idiomas Planeados v4.1+", planned_langs_desc:"Mediante contribuciones de la comunidad, L.O. apunta a 50 idiomas naturales para 2027:",
+    contrib_title:"Contribuir a L.O.", contrib_desc:"Agregar un nuevo dialecto requiere un único archivo JSON de mapeo léxico y pruebas de regresión. Sin cambios en el compilador.",
+    collab_title:"Buscamos colaboradores", collab_desc:"para nuevos backends (GPU CUDA, WebGPU), idiomas naturales no cubiertos y verificación formal de LIR. Licencia Apache 2.0.",
+    sec11_label:"11 · Referencias", sec11_title:"Fundamentos teóricos.",
+    ref_llvm:"Infraestructura de compiladores con representaciones intermedias extensibles. LIR es un dialecto MLIR con extensiones cuánticas y BD.",
+    ref_compcert:"Compilador C formalmente verificado, demostrando que los compiladores con verificación formal son posibles en la práctica.",
+    ref_quipper:"Lenguajes cuánticos con tipos lineales — la base para tratar los qubits como recursos no clonables en L.O.",
+    ref_jvm:"Prototipos para optimizaciones JIT adaptativas en tiempo de ejecución, caché inline y especialización por tipos.",
+    ref_esquema:"Dialecto Scheme con palabras clave en español — prueba de que los lenguajes con sintaxis multilingüe son viables.",
+    ref_openqasm:"El estándar de facto para circuitos cuánticos, elegido como formato de salida para el backend cuántico de L.O.",
+    footer_meta:"Documentación Técnica v4.0 · Abril 2026 · Licencia Apache 2.0",
+    footer_author:'Creado por <strong>Claudiu Groza (Vemeth)</strong> · Proyecto abierto para colaboración internacional',
+    footer_quote:'"Cada mente humana merece programar en su propio idioma."'
+  },
+  ja: {
+    nav_philosophy:"哲学", nav_arch:"アーキテクチャ", nav_syntax:"構文", nav_types:"型システム",
+    nav_quantum:"量子計算", nav_db:"LinguaDB", nav_demo:"デモ", nav_ecosystem:"エコシステム", nav_roadmap:"ロードマップ",
+    hero_eyebrow:"技術仕様書",
+    hero_title_line1:"あらゆる人間の言語で", hero_title_line2:"プログラムする。",
+    hero_sub:'汎用プログラミング言語 — 多言語対応、マルチアーキテクチャ、統合データベース、ネイティブ量子ハイブリッド計算。作者：<strong>Claudiu Groza (Vemeth)</strong>',
+    tag_langs:"🌍 30以上の自然言語", tag_quantum:"⚛️ 量子ハイブリッド",
+    tag_db:"🗄️ LinguaDB内蔵", tag_jit:"⚡ 適応型JIT", tag_ai:"🤖 AI拡張可能", tag_types:"🔒 線形型",
+    stat_langs:"自然言語", stat_arch:"ハードウェアアーキテクチャ", stat_layers:"コンパイラ層", stat_poss:"可能性",
+    sec01_label:"01 · 哲学", sec01_title:"なぜ Lingua Omnibus なのか？",
+    sec01_p1:'現在、約<strong>7億人の潜在的プログラマー</strong>が言語の壁によりプログラミングから排除されています。すべての現代プログラミング言語は本質的に英語の方言です。',
+    sec01_p2:"Lingua Omnibus はこの伝統を打ち破ります。意味論は普遍的なままですが、構文はあなたの母国語で表現されます。",
+    vision_label:"ビジョン：", vision_text:"ルーマニア語、日本語、アラビア語、スワヒリ語で書かれた同じプログラムが、同一の最適化されたマシンコードを生成します。言語は障壁ではなく、橋です。",
+    p1_title:"普遍的な言語アクセシビリティ", p1_body:"キーワードはあらゆる自然言語から内部の抽象トークンにマップされます。意味的コアは言語から完全に分離されています。",
+    p2_title:"完全なハードウェア移植性", p2_body:"x86-64、ARM、RISC-V、PowerPC、QPU へのネイティブコンパイル。単一ソースファイル、任意のターゲット。",
+    p3_title:"摩擦のないネイティブ永続化", p3_body:"ACIDデータベースエンジンが言語に直接統合されています。オブジェクト・リレーショナルの不整合はもう不要です。",
+    p4_title:"本質的な適応性", p4_body:"多段階JIT、ハードウェアアダプター、コンテキスト対応の特化。コードは実行マシンに基づいて自己最適化します。",
+    p5_title:"検証可能な正確性", p5_body:"量子ビット用の線形型（量子複製不可能定理）、推論付き静的型システム、形式的に検証可能なLIR。",
+    sec02_label:"02 · アーキテクチャ", sec02_title:"3つの層。1つの意味論。",
+    sec02_p:"厳密な分離により、同じ意味的コードを任意のハードウェアターゲット向けにコンパイルでき、フロントエンドはパイプラインの残りに影響を与えることなく完全に交換可能です。",
+    l1_label:"第1層 · フロントエンド", l1_title:"多言語サーフェス — 言語ごとのパーサー",
+    more_lang:"その他", l1_desc:'各パーサーは同じ統一されたASTを生成します。自動言語検出または明示的な <code>#lingua: XX</code> ディレクティブ。',
+    l2_label:"第2層 · 意味論コア", l2_desc:"静的型付け、言語・アーキテクチャ非依存。量子とDBの方言を持つMLIRサブセットに基づいています。",
+    l3_label:"第3層 · バックエンド", l3_title:"マルチターゲット実行",
+    sec03_label:"03 · 構文", sec03_title:"同じプログラム。6つの言語。",
+    sec03_p:'コンパイラはトークンから自動的に言語を検出するか、<code>#lingua: JA</code> ディレクティブを使用します。各言語には字句マッピングファイルがあります。',
+    same_semantics:"同一の意味論、同一にコンパイル",
+    sec04_label:"04 · 型システム", sec04_title:"静的。安全。普遍的。",
+    sec04_p:'すべての型名は翻訳可能です。コンパイラは <code>Integer</code>、<code>Entier</code>、<code>Ganzzahl</code>、<code>整数</code>、<code>Întreg</code> を同じプリミティブとして認識します。',
+    types_prim:"プリミティブ型", types_comp:"複合型", types_lin:"線形型（量子）",
+    effects_title:"v4.0 新機能：アフィン型 &amp; 代数的効果",
+    sec05_label:"05 · 量子ハイブリッド計算", sec05_title:"量子ビットはファーストクラスの市民です。",
+    sec05_p:'L.O. は量子ビットをコンパイル時に検証される線形リソースとして扱います。<code>quantum { ... }</code> ブロックは OpenQASM 3.0 回路にコンパイルされ、ローカルシミュレーターまたはクラウド QPU で実行できます。',
+    bell_title:"ベル回路 — 多言語例",
+    compile_guarantee:"コンパイル時保証：", qubit_note:'<code>Qubit</code> 型は線形です — コンパイラは量子ビットのコピーや再測定の試みを拒否し、量子複製不可能定理を遵守します。',
+    qhw_title:"量子ハードウェアバックエンド", qubits_col:"量子ビット数", local_sim:"ローカルシミュレーター",
+    sec06_label:"06 · LinguaDB", sec06_title:"データベースをネイティブ構文として。",
+    sec06_p:"LinguaDB はコンパイラに直接統合されたACIDエンジンです。スキーマはランタイムではなくコンパイル時に静的に検証されます。",
+    relational_ops:"関係演算", vector_search:"ベクトルセマンティック検索",
+    schema_guarantee:"コンパイル時スキーマ検証：", schema_note:"存在しないフィールドにアクセスすると、コンパイラはエラーを生成します — ランタイムクラッシュではありません。LinguaDBは暗黙的なパラメーター化によりSQLインジェクションを完全に排除します。",
+    sec07_label:"07 · インタラクティブデモ", sec07_title:"言語を選んで。コードを読んで。",
+    sec07_p:"以下の例は、同じ完全なプログラム — バリデーションと永続化を伴うユーザー登録 — を6つの自然言語で示しています。",
+    sec08_label:"08 · 比較", sec08_title:"L.O. vs. 既存の代替手段。",
+    feature_col:"機能",
+    feat1:"ネイティブ多言語構文", feat2:"統合量子計算", feat3:"ORMなしのネイティブDB",
+    feat4:"量子ビット用線形型", feat5:"ネイティブマルチアーキテクチャコンパイル", feat6:"適応型JIT",
+    feat7:"LIR形式検証", feat8:"静的スキーマ検証",
+    sec09_label:"09 · エコシステム", sec09_title:"すべての言語のためのツール。",
+    tool_compiler:"メインコンパイラ", tool_compiler_desc:"多言語フロントエンド + LIR + ハードウェアバックエンド。自動言語検出、ソース言語でのエラーレポート、クロスコンパイルサポート。",
+    tool_pm:"パッケージマネージャー", tool_pm_desc:"多言語レジストリ。パッケージはあらゆる自然言語で書かれ、他の言語で使用できます。",
+    tool_fmt:"フォーマッター", tool_fmt_desc:"選択した自然言語の規約に従ったコードフォーマット。発音区別符号、RTL（アラビア語、ヘブライ語）、非ラテン文字のサポート。",
+    tool_lsp:"言語サーバー", tool_lsp_desc:"オートコンプリート、診断、ホバー、リネーム — すべてソースの自然言語で。VSCode、Neovim、JetBrains、Emacsと互換性があります。",
+    tool_doc:"ドキュメントジェネレーター", tool_doc_desc:"コードのソース言語でHTML/Markdownドキュメントを生成します。要求に応じてコメントを他の言語に自動翻訳します。",
+    tool_test:"テストフレームワーク", tool_test_desc:"自然言語でのユニット、統合、プロパティベーステスト。多言語レポート。",
+    sec10_label:"10 · ロードマップ", sec10_title:"L.O. の次のステップ。",
+    phase1_label:"フェーズ1 · 2025 Q1–Q2 ✓", phase1_title:"基盤 — 仕様とプロトタイプ", phase1_desc:"形式的なLIR仕様、RO/EN/ES/FR/JAのプロトタイプパーサー、基本的なリレーショナルLinguaDB、静的型システム。",
+    phase2_label:"フェーズ2 · 2025 Q3–Q4", phase2_title:"完全なコンパイラ & x86_64バックエンド", phase2_desc:'エンドツーエンドコンパイラパイプライン、AVX-512付きx86_64バックエンド、多段階JIT、機能的な <code>loc</code> と <code>lopm</code>、10言語サポート。',
+    phase3_label:"フェーズ3 · 2026 Q1–Q2", phase3_title:"マルチアーキテクチャ & 量子", phase3_desc:"ARM/RISC-V/PowerPCバックエンド、IBM+IonQ QPU統合、LinguaDBベクトルインデックス、代数的効果システム、言語サーバー。",
+    phase4_label:"フェーズ4 · 2026 Q3–Q4", phase4_title:"エコシステム & コミュニティ", phase4_desc:"30以上の自然言語、公開パッケージレジストリ、IDEプラグイン、インタラクティブドキュメント、L.O.での初めてのオープンソースプロジェクト。",
+    phase5_label:"フェーズ5 · 2027+", phase5_title:"形式検証 & AI支援", phase5_desc:"統合LIRプルーバー、あらゆる自然言語でのLLM支援コード生成、ネイティブRTLおよび表意文字スクリプトサポート。",
+    planned_langs_title:"予定言語 v4.1+", planned_langs_desc:"コミュニティの貢献を通じて、L.O.は2027年までに50の自然言語を目標としています：",
+    contrib_title:"L.O.に貢献する", contrib_desc:"新しい方言の追加には、単一のJSONレキシカルマッピングファイルと回帰テストが必要です。コンパイラの変更は不要です。",
+    collab_title:"協力者を募集中", collab_desc:"新しいバックエンド（GPU CUDA、WebGPU）、未対応の自然言語、LIRの形式検証のために。Apache 2.0ライセンス。",
+    sec11_label:"11 · 参考文献", sec11_title:"理論的基盤。",
+    ref_llvm:"拡張可能な中間表現を持つコンパイラインフラストラクチャ。LIRは量子とDBの拡張を持つMLIR方言です。",
+    ref_compcert:"形式的に検証されたCコンパイラ。形式検証を伴うコンパイラが実際に可能であることを証明しています。",
+    ref_quipper:"線形型を持つ量子言語 — L.O.で量子ビットを複製不可能なリソースとして扱う基礎。",
+    ref_jvm:"ランタイムでの適応型JIT最適化、インラインキャッシング、型ベースの特化のプロトタイプ。",
+    ref_esquema:"スペイン語キーワードを持つScheme方言 — 多言語構文を持つ言語が実行可能であることの証明。",
+    ref_openqasm:"量子回路のデファクトスタンダード。L.O.の量子バックエンドの出力フォーマットとして選択されました。",
+    footer_meta:"技術ドキュメント v4.0 · 2026年4月 · Apache 2.0 ライセンス",
+    footer_author:'作成者：<strong>Claudiu Groza (Vemeth)</strong> · 国際協力のためのオープンプロジェクト',
+    footer_quote:'"すべての人間の精神は、自分自身の言語でプログラムする権利がある。"'
+  },
+  // NOU: RUSĂ
+  ru: {
+    nav_philosophy:"Философия", nav_arch:"Архитектура", nav_syntax:"Синтаксис", nav_types:"Типы",
+    nav_quantum:"Квантовые", nav_db:"LinguaDB", nav_demo:"Демо", nav_ecosystem:"Экосистема", nav_roadmap:"План",
+    hero_eyebrow:"Техническая спецификация",
+    hero_title_line1:"Программируй на", hero_title_line2:"любом человеческом языке.",
+    hero_sub:'Универсальный язык программирования — многоязычный, мульти-архитектурный, со встроенными базами данных и нативными гибридно-квантовыми вычислениями. Создатель <strong>Claudiu Groza (Vemeth)</strong>.',
+    tag_langs:"🌍 30+ Естественных языков", tag_quantum:"⚛️ Гибридно-квантовый",
+    tag_db:"🗄️ Нативный LinguaDB", tag_jit:"⚡ Адаптивный JIT", tag_ai:"🤖 Расширяемый ИИ", tag_types:"🔒 Линейные типы",
+    stat_langs:"Естественных языков", stat_arch:"Аппаратных архитектур", stat_layers:"Слоёв компилятора", stat_poss:"Возможностей",
+    sec01_label:"01 · Философия", sec01_title:"Почему Lingua Omnibus?",
+    sec01_p1:'Сегодня около <strong>700 миллионов потенциальных программистов</strong> не могут программировать из-за языкового барьера. Все современные языки программирования — по сути, диалекты английского.',
+    sec01_p2:"Lingua Omnibus ломает эту традицию. Семантика остаётся универсальной, а синтаксис — это выражение вашего родного языка.",
+    vision_label:"Видение:", vision_text:"Одна и та же программа, написанная на румынском, японском, арабском или суахили, даёт идентичный оптимизированный машинный код. Язык — не препятствие, а мост.",
+    p1_title:"Универсальная языковая доступность", p1_body:"Ключевые слова отображаются из любого естественного языка во внутренние абстрактные токены. Семантическое ядро полностью изолировано от языка.",
+    p2_title:"Полная аппаратная переносимость", p2_body:"Нативная компиляция для x86-64, ARM, RISC-V, PowerPC и QPU. Один исходный файл — любая цель.",
+    p3_title:"Нативная персистентность без трения", p3_body:"Движок ACID-базы данных, встроенный прямо в язык. Больше никакого объектно-реляционного несоответствия.",
+    p4_title:"Внутренняя адаптивность", p4_body:"Многоуровневый JIT, аппаратные адаптеры, контекстная специализация. Код самооптимизируется под целевую машину.",
+    p5_title:"Проверяемая корректность", p5_body:"Линейные типы для кубитов (теорема о запрете клонирования), статическая типизация с выводом типов, формально верифицируемый LIR.",
+    sec02_label:"02 · Архитектура", sec02_title:"Три слоя. Одна семантика.",
+    sec02_p:"Строгое разделение позволяет компилировать один и тот же семантический код под любую аппаратную цель, при этом фронтенд полностью заменяем без влияния на остальную часть конвейера.",
+    l1_label:"Слой 1 · Фронтенд", l1_title:"Многоязычная поверхность — парсеры для каждого языка",
+    more_lang:"ещё", l1_desc:'Каждый парсер создаёт единое AST. Автоматическое определение языка или явная директива <code>#lingua: XX</code>.',
+    l2_label:"Слой 2 · Семантическое ядро", l2_desc:"Статически типизированное, независимое от языка и архитектуры. Основано на подмножестве MLIR с квантовыми и БД-диалектами.",
+    l3_label:"Слой 3 · Бэкенд", l3_title:"Мульти-целевое исполнение",
+    sec03_label:"03 · Синтаксис", sec03_title:"Одна программа. Шесть языков.",
+    sec03_p:'Компилятор автоматически определяет язык по токенам или через директиву <code>#lingua: RU</code>. Для каждого языка есть файл лексического сопоставления.',
+    same_semantics:"идентичная семантика, идентичная компиляция",
+    sec04_label:"04 · Система типов", sec04_title:"Статическая. Безопасная. Универсальная.",
+    sec04_p:'Все имена типов переводимы. Компилятор знает, что <code>Integer</code>, <code>Entier</code>, <code>Ganzzahl</code>, <code>整数</code> и <code>Întreg</code> — один и тот же примитив.',
+    types_prim:"Примитивы", types_comp:"Составные", types_lin:"Линейные (квантовые)",
+    effects_title:"Новое в v4.0: Аффинные типы и алгебраические эффекты",
+    sec05_label:"05 · Гибридно-квантовые вычисления", sec05_title:"Кубиты — полноправные граждане.",
+    sec05_p:'L.O. обращается с кубитами как с линейными ресурсами, проверяемыми на этапе компиляции. Блоки <code>quantum { ... }</code> компилируются в схемы OpenQASM 3.0 и могут выполняться на локальных симуляторах или облачных QPU.',
+    bell_title:"Схема Белла — многоязычные примеры",
+    compile_guarantee:"Гарантия на этапе компиляции:", qubit_note:'Тип <code>Qubit</code> линеен — компилятор отклоняет любую попытку скопировать или повторно измерить кубит, соблюдая теорему о запрете клонирования.',
+    qhw_title:"Квантовые аппаратные бэкенды", qubits_col:"Кубитов", local_sim:"Локальный симулятор",
+    sec06_label:"06 · LinguaDB", sec06_title:"Базы данных как нативный синтаксис.",
+    sec06_p:"LinguaDB — ACID-движок, интегрированный прямо в компилятор. Схемы проверяются статически на этапе компиляции, а не во время выполнения.",
+    relational_ops:"Реляционные операции", vector_search:"Векторный семантический поиск",
+    schema_guarantee:"Схема проверена при компиляции:", schema_note:"При обращении к несуществующему полю компилятор выдаёт ошибку — не падение во время выполнения. LinguaDB полностью устраняет SQL-инъекции за счёт неявной параметризации.",
+    sec07_label:"07 · Интерактивное демо", sec07_title:"Выберите язык. Читайте код.",
+    sec07_p:"Примеры ниже показывают одну и ту же программу — регистрацию пользователя с проверкой и сохранением — на шести естественных языках.",
+    sec08_label:"08 · Сравнение", sec08_title:"L.O. против существующих альтернатив.",
+    feature_col:"Возможность",
+    feat1:"Нативный многоязычный синтаксис", feat2:"Интегрированные квантовые вычисления", feat3:"Нативная БД без ORM",
+    feat4:"Линейные типы для кубитов", feat5:"Нативная мульти-архитектурная компиляция", feat6:"Адаптивный JIT",
+    feat7:"Формальная верификация LIR", feat8:"Статическая проверка схемы",
+    sec09_label:"09 · Экосистема", sec09_title:"Инструменты для каждого языка.",
+    tool_compiler:"Основной компилятор", tool_compiler_desc:"Многоязычный фронтенд + LIR + аппаратный бэкенд. Автоопределение языка, сообщения об ошибках на исходном языке, поддержка кросс-компиляции.",
+    tool_pm:"Менеджер пакетов", tool_pm_desc:"Многоязычный реестр. Пакеты могут быть написаны на любом естественном языке и использоваться на любом другом. Семантическое разрешение, не текстовое.",
+    tool_fmt:"Форматтер", tool_fmt_desc:"Форматирование кода с учётом соглашений выбранного естественного языка. Поддержка диакритики, RTL (арабский, иврит), нелатинских письменностей.",
+    tool_lsp:"Языковой сервер", tool_lsp_desc:"Автодополнение, диагностика, подсказки, переименование — всё на естественном языке исходного кода. Совместим с VSCode, Neovim, JetBrains, Emacs.",
+    tool_doc:"Генератор документации", tool_doc_desc:"Генерирует HTML/Markdown-документацию на языке исходного кода. Автоматически переводит комментарии на другие языки по запросу.",
+    tool_test:"Тестовый фреймворк", tool_test_desc:"Модульные, интеграционные и property-based тесты на естественном языке. Многоязычные отчёты.",
+    sec10_label:"10 · План развития", sec10_title:"Что дальше для L.O.",
+    phase1_label:"Фаза 1 · 2025 Q1–Q2 ✓", phase1_title:"Основы — Спецификация и прототип", phase1_desc:"Формальная спецификация LIR, прототип парсера для RO/EN/ES/FR/JA, базовая реляционная LinguaDB, статическая система типов.",
+    phase2_label:"Фаза 2 · 2025 Q3–Q4", phase2_title:"Полный компилятор и бэкенд x86_64", phase2_desc:'Сквозной конвейер компиляции, бэкенд x86_64 с AVX-512, многоуровневый JIT, работающие <code>loc</code> и <code>lopm</code>, поддержка 10 языков.',
+    phase3_label:"Фаза 3 · 2026 Q1–Q2", phase3_title:"Мульти-архитектура и квантовые вычисления", phase3_desc:"Бэкенды ARM/RISC-V/PowerPC, интеграция IBM+IonQ QPU, векторные индексы LinguaDB, система алгебраических эффектов, языковой сервер.",
+    phase4_label:"Фаза 4 · 2026 Q3–Q4", phase4_title:"Экосистема и сообщество", phase4_desc:"30+ естественных языков, публичный реестр пакетов, плагины для IDE, интерактивная документация, первые open-source проекты на L.O.",
+    phase5_label:"Фаза 5 · 2027+", phase5_title:"Формальная верификация и ИИ-помощь", phase5_desc:"Встроенный прувер LIR, генерация кода с помощью LLM на любом естественном языке, нативная поддержка RTL и идеографических письменностей.",
+    planned_langs_title:"Запланированные языки v4.1+", planned_langs_desc:"Благодаря вкладу сообщества L.O. нацелен на 50 естественных языков к 2027 году:",
+    contrib_title:"Внести вклад в L.O.", contrib_desc:"Добавление нового диалекта требует одного JSON-файла лексического сопоставления и регрессионных тестов. Изменения в компиляторе не нужны.",
+    collab_title:"Ищем соавторов", collab_desc:"для новых бэкендов (GPU CUDA, WebGPU), непокрытых естественных языков и формальной верификации LIR. Лицензия Apache 2.0.",
+    sec11_label:"11 · Ссылки", sec11_title:"Теоретические основы.",
+    ref_llvm:"Инфраструктура компиляторов с расширяемыми промежуточными представлениями. LIR — диалект MLIR с квантовыми и БД-расширениями.",
+    ref_compcert:"Формально верифицированный компилятор C, доказывающий, что компиляторы с формальной верификацией практически возможны.",
+    ref_quipper:"Квантовые языки с линейными типами — основа для обработки кубитов как неклонируемых ресурсов в L.O.",
+    ref_jvm:"Прототипы адаптивных JIT-оптимизаций во время выполнения, инлайн-кеширование и специализация по типам.",
+    ref_esquema:"Диалект Scheme с испанскими ключевыми словами — доказательство жизнеспособности языков с многоязычным синтаксисом.",
+    ref_openqasm:"Де-факто стандарт для квантовых схем, выбранный в качестве выходного формата для квантового бэкенда L.O.",
+    footer_meta:"Техническая документация v4.0 · Апрель 2026 · Лицензия Apache 2.0",
+    footer_author:'Создатель <strong>Claudiu Groza (Vemeth)</strong> · Открытый проект для международного сотрудничества',
+    footer_quote:'"Каждый человеческий разум заслуживает программировать на своём родном языке."'
+  },
+  // NOU: CHINEZĂ SIMPLIFICATĂ
+  zh: {
+    nav_philosophy:"哲学", nav_arch:"架构", nav_syntax:"语法", nav_types:"类型",
+    nav_quantum:"量子计算", nav_db:"LinguaDB", nav_demo:"演示", nav_ecosystem:"生态系统", nav_roadmap:"路线图",
+    hero_eyebrow:"技术规范",
+    hero_title_line1:"用", hero_title_line2:"任何人类语言编程。",
+    hero_sub:'一种通用编程语言 — 多语言、多架构，内置数据库和原生混合量子计算。创建者：<strong>Claudiu Groza (Vemeth)</strong>',
+    tag_langs:"🌍 30+ 种自然语言", tag_quantum:"⚛️ 混合量子",
+    tag_db:"🗄️ 原生 LinguaDB", tag_jit:"⚡ 自适应 JIT", tag_ai:"🤖 AI 可扩展", tag_types:"🔒 线性类型",
+    stat_langs:"自然语言", stat_arch:"硬件架构", stat_layers:"编译器层数", stat_poss:"可能性",
+    sec01_label:"01 · 哲学", sec01_title:"为什么选择 Lingua Omnibus？",
+    sec01_p1:'如今大约有 <strong>7 亿潜在程序员</strong> 因语言障碍而被排除在编程之外。所有现代编程语言本质上都是英语的方言。',
+    sec01_p2:"Lingua Omnibus 打破了这一传统。语义保持通用，但语法是您母语的表达。",
+    vision_label:"愿景：", vision_text:"用罗马尼亚语、日语、阿拉伯语或斯瓦希里语编写的同一程序，生成完全相同且优化的机器码。语言不是障碍——而是桥梁。",
+    p1_title:"通用语言可访问性", p1_body:"关键词从任何自然语言映射到内部抽象标记。语义核心与语言完全隔离。",
+    p2_title:"全面硬件可移植性", p2_body:"原生编译支持 x86-64、ARM、RISC-V、PowerPC 和 QPU。一个源文件，任意目标。",
+    p3_title:"无摩擦的原生持久化", p3_body:"ACID 数据库引擎直接集成在语言中。不再有对象-关系阻抗不匹配。",
+    p4_title:"内在适应性", p4_body:"分层 JIT、硬件适配器、上下文感知特化。代码根据运行机器自我优化。",
+    p5_title:"可验证的正确性", p5_body:"量子比特的线性类型（不可克隆定理），带推断的静态类型系统，可形式化验证的 LIR。",
+    sec02_label:"02 · 架构", sec02_title:"三层。一种语义。",
+    sec02_p:"严格分离允许相同的语义代码编译到任何硬件目标，而前端完全可替换而不影响管道的其余部分。",
+    l1_label:"第 1 层 · 前端", l1_title:"多语言表面 — 每种语言的解析器",
+    more_lang:"更多", l1_desc:'每个解析器产生相同的统一 AST。自动语言检测或显式 <code>#lingua: XX</code> 指令。',
+    l2_label:"第 2 层 · 语义核心", l2_desc:"静态类型，与语言和架构无关。基于包含量子和数据库方言的 MLIR 子集。",
+    l3_label:"第 3 层 · 后端", l3_title:"多目标执行",
+    sec03_label:"03 · 语法", sec03_title:"同一个程序。六种语言。",
+    sec03_p:'编译器通过标记自动检测语言，或通过 <code>#lingua: ZH</code> 指令指定。每种语言都有一个词法映射文件。',
+    same_semantics:"语义相同，编译相同",
+    sec04_label:"04 · 类型系统", sec04_title:"静态。安全。通用。",
+    sec04_p:'所有类型名称都是可翻译的。编译器知道 <code>Integer</code>、<code>Entier</code>、<code>Ganzzahl</code>、<code>整数</code> 和 <code>Întreg</code> 是同一个基本类型。',
+    types_prim:"基本类型", types_comp:"复合类型", types_lin:"线性类型（量子）",
+    effects_title:"v4.0 新特性：仿射类型和代数效应",
+    sec05_label:"05 · 混合量子计算", sec05_title:"量子比特是一等公民。",
+    sec05_p:'L.O. 将量子比特视为编译时验证的线性资源。<code>quantum { ... }</code> 块编译为 OpenQASM 3.0 电路，并可在本地模拟器或云 QPU 上运行。',
+    bell_title:"贝尔电路 — 多语言示例",
+    compile_guarantee:"编译时保证：", qubit_note:'<code>Qubit</code> 类型是线性的 — 编译器拒绝任何复制或重复测量量子比特的尝试，遵循不可克隆定理。',
+    qhw_title:"量子硬件后端", qubits_col:"量子比特数", local_sim:"本地模拟器",
+    sec06_label:"06 · LinguaDB", sec06_title:"数据库作为原生语法。",
+    sec06_p:"LinguaDB 是直接集成在编译器中的 ACID 引擎。模式在编译时静态验证，而非运行时。支持关系模型、JSON 文档和向量索引用于语义搜索。",
+    relational_ops:"关系操作", vector_search:"向量语义搜索",
+    schema_guarantee:"编译时模式验证：", schema_note:"如果访问不存在的字段，编译器会报错 — 而不是运行时崩溃。LinguaDB 通过隐式参数化完全消除了 SQL 注入。",
+    sec07_label:"07 · 交互演示", sec07_title:"选择语言。阅读代码。",
+    sec07_p:"以下示例展示了同一个完整程序 — 带验证和持久化的用户注册 — 用六种自然语言编写。",
+    sec08_label:"08 · 比较", sec08_title:"L.O. 对比现有替代方案。",
+    feature_col:"特性",
+    feat1:"原生多语言语法", feat2:"集成量子计算", feat3:"无 ORM 的原生数据库",
+    feat4:"量子比特的线性类型", feat5:"原生多架构编译", feat6:"自适应 JIT",
+    feat7:"LIR 形式化验证", feat8:"静态模式验证",
+    sec09_label:"09 · 生态系统", sec09_title:"为每种语言打造的工具。",
+    tool_compiler:"主编译器", tool_compiler_desc:"多语言前端 + LIR + 硬件后端。自动语言检测、源语言错误报告、交叉编译支持。",
+    tool_pm:"包管理器", tool_pm_desc:"多语言注册表。包可以用任何自然语言编写，并在任何其他语言中使用。语义解析，而非文本。",
+    tool_fmt:"格式化工具", tool_fmt_desc:"遵循所选自然语言约定的代码格式化。支持变音符号、RTL（阿拉伯语、希伯来语）、非拉丁文字。",
+    tool_lsp:"语言服务器", tool_lsp_desc:"自动补全、诊断、悬停、重命名 — 全部使用源代码的自然语言。兼容 VSCode、Neovim、JetBrains、Emacs。",
+    tool_doc:"文档生成器", tool_doc_desc:"以源代码语言生成 HTML/Markdown 文档。按需自动将注释翻译成其他语言。",
+    tool_test:"测试框架", tool_test_desc:"自然语言中的单元、集成和基于属性的测试。多语言报告。",
+    sec10_label:"10 · 路线图", sec10_title:"L.O. 的下一步。",
+    phase1_label:"阶段 1 · 2025 Q1–Q2 ✓", phase1_title:"基础 — 规范与原型", phase1_desc:"形式化 LIR 规范，RO/EN/ES/FR/JA 的原型解析器，基础关系型 LinguaDB，静态类型系统。",
+    phase2_label:"阶段 2 · 2025 Q3–Q4", phase2_title:"完整编译器与 x86_64 后端", phase2_desc:'端到端编译器管道，带 AVX-512 的 x86_64 后端，分层 JIT，功能完整的 <code>loc</code> 和 <code>lopm</code>，支持 10 种语言。',
+    phase3_label:"阶段 3 · 2026 Q1–Q2", phase3_title:"多架构与量子计算", phase3_desc:"ARM/RISC-V/PowerPC 后端，IBM+IonQ QPU 集成，LinguaDB 向量索引，代数效应系统，语言服务器。",
+    phase4_label:"阶段 4 · 2026 Q3–Q4", phase4_title:"生态系统与社区", phase4_desc:"30+ 种自然语言，公共包注册表，IDE 插件，交互式文档，首批 L.O. 开源项目。",
+    phase5_label:"阶段 5 · 2027+", phase5_title:"形式化验证与 AI 辅助", phase5_desc:"集成 LIR 证明器，任何自然语言的 LLM 辅助代码生成，原生支持 RTL 和表意文字。",
+    planned_langs_title:"计划语言 v4.1+", planned_langs_desc:"通过社区贡献，L.O. 计划到 2027 年支持 50 种自然语言：",
+    contrib_title:"为 L.O. 做贡献", contrib_desc:"添加新方言只需一个 JSON 词法映射文件和回归测试。无需修改编译器。",
+    collab_title:"寻找合作者", collab_desc:"用于新后端（GPU CUDA、WebGPU）、未覆盖的自然语言和 LIR 形式化验证。Apache 2.0 许可证。",
+    sec11_label:"11 · 参考文献", sec11_title:"理论基础。",
+    ref_llvm:"具有可扩展中间表示的编译器基础设施。LIR 是带有量子和数据库扩展的 MLIR 方言。",
+    ref_compcert:"形式化验证的 C 编译器，证明带有形式化验证的编译器在实际中是可行的。",
+    ref_quipper:"带有线性类型的量子语言 — L.O. 中将量子比特视为不可克隆资源的基础。",
+    ref_jvm:"运行时自适应 JIT 优化、内联缓存和基于类型的特化的原型。",
+    ref_esquema:"带有西班牙语关键词的 Scheme 方言 — 证明具有多语言语法的语言是可行的。",
+    ref_openqasm:"量子电路的事实标准，被选为 L.O. 量子后端的输出格式。",
+    footer_meta:"技术文档 v4.0 · 2026 年 4 月 · Apache 2.0 许可证",
+    footer_author:'创建者 <strong>Claudiu Groza (Vemeth)</strong> · 面向国际合作的开源项目',
+    footer_quote:'“每个人的思维都值得用自己的语言编程。”'
+  }
+};
+
+// ── Demo code snippets (extins cu RU și ZH) ─────────────────
+const demoCodes = {
+  en: `#lingua: EN
+
+function main():
+    var name = read("Enter name: ")
+    var age  = read_integer("Age: ")
+    
+    if age < 0 or age > 150 then:
+        display("Invalid age.")
+        return
+    
+    if age < 18 then:
+        display("Access restricted for minors.")
+    else:
+        display("Welcome, ", name, "!")
+    
+    create table Visitors if_not_exists (
+        id      Integer primary_key auto_increment,
+        name    Text(200) not_null,
+        age     Integer,
+        visited Time default NOW()
+    )
+    
+    insert into Visitors (name, age)
+        values (name, age)
+    
+    display("✓ Saved to database.")`,
+  ro: `#lingua: RO
+
+funcție principală():
+    variabilă nume = citește("Introdu numele: ")
+    variabilă vârstă = citește_întreg("Vârstă: ")
+    
+    dacă vârstă < 0 sau vârstă > 150 atunci:
+        afișează("Vârstă invalidă.")
+        returnează
+    
+    dacă vârstă < 18 atunci:
+        afișează("Acces restricționat minorilor.")
+    altfel:
+        afișează("Bine ai venit, ", nume, "!")
+    
+    creare tabelă Vizitatori dacă_nu_există (
+        id      Întreg cheie_primară auto_increment,
+        nume    Text(200) nu_null,
+        vârstă  Întreg,
+        vizitat Timp implicit ACUM()
+    )
+    
+    inserează în Vizitatori (nume, vârstă)
+        valori (nume, vârstă)
+    
+    afișează("✓ Salvat în baza de date.")`,
+  fr: `#lingua: FR
+
+fonction principale():
+    variable nom  = lire("Entrez le nom : ")
+    variable âge  = lire_entier("Âge : ")
+    
+    si âge < 0 ou âge > 150 alors:
+        afficher("Âge invalide.")
+        retourner
+    
+    si âge < 18 alors:
+        afficher("Accès restreint aux mineurs.")
+    sinon:
+        afficher("Bienvenue, ", nom, " !")
+    
+    créer table Visiteurs si_n_existe_pas (
+        id      Entier clé_primaire auto_increment,
+        nom     Texte(200) non_nul,
+        âge     Entier,
+        visité  Temps défaut MAINTENANT()
+    )
+    
+    insérer dans Visiteurs (nom, âge)
+        valeurs (nom, âge)
+    
+    afficher("✓ Sauvegardé dans la base de données.")`,
+  de: `#lingua: DE
+
+Funktion Haupt():
+    Variable Name  = Einlesen("Name eingeben: ")
+    Variable Alter = EinlesenGanzzahl("Alter: ")
+    
+    wenn Alter < 0 oder Alter > 150 dann:
+        Ausgabe("Ungültiges Alter.")
+        zurückgeben
+    
+    wenn Alter < 18 dann:
+        Ausgabe("Zugang für Minderjährige gesperrt.")
+    sonst:
+        Ausgabe("Willkommen, ", Name, "!")
+    
+    Tabelle erstellen Besucher wenn_nicht_existiert (
+        id      Ganzzahl Primärschlüssel auto_increment,
+        Name    Text(200) nicht_null,
+        Alter   Ganzzahl,
+        Besucht Zeit Standard JETZT()
+    )
+    
+    einfügen in Besucher (Name, Alter)
+        Werte (Name, Alter)
+    
+    Ausgabe("✓ In Datenbank gespeichert.")`,
+  es: `#lingua: ES
+
+función principal():
+    variable nombre = leer("Ingresa nombre: ")
+    variable edad   = leer_entero("Edad: ")
+    
+    si edad < 0 o edad > 150 entonces:
+        mostrar("Edad inválida.")
+        retornar
+    
+    si edad < 18 entonces:
+        mostrar("Acceso restringido a menores.")
+    si no:
+        mostrar("Bienvenido/a, ", nombre, "!")
+    
+    crear tabla Visitantes si_no_existe (
+        id      Entero clave_primaria auto_increment,
+        nombre  Texto(200) no_nulo,
+        edad    Entero,
+        visita  Tiempo predeterminado AHORA()
+    )
+    
+    insertar en Visitantes (nombre, edad)
+        valores (nombre, edad)
+    
+    mostrar("✓ Guardado en la base de datos.")`,
+  ja: `#lingua: JA
+
+関数 メイン():
+    変数 名前 = 読む("名前を入力してください: ")
+    変数 年齢 = 整数読む("年齢: ")
+    
+    もし 年齢 < 0 または 年齢 > 150 ならば:
+        表示("無効な年齢です。")
+        返す
+    
+    もし 年齢 < 18 ならば:
+        表示("未成年者はアクセスできません。")
+    そうでなければ:
+        表示("ようこそ、", 名前, "！")
+    
+    テーブル作成 訪問者 もし存在しない (
+        id    整数 主キー 自動増分,
+        名前  テキスト(200) 非ヌル,
+        年齢  整数,
+        訪問  時刻 デフォルト 現在()
+    )
+    
+    挿入 訪問者 (名前, 年齢)
+        値 (名前, 年齢)
+    
+    表示("✓ データベースに保存しました。")`,
+  ru: `#lingua: RU
+
+функция главная():
+    переменная имя = прочитать("Введите имя: ")
+    переменная возраст = прочитать_целое("Возраст: ")
+    
+    если возраст < 0 или возраст > 150 тогда:
+        вывести("Недопустимый возраст.")
+        вернуть
+    
+    если возраст < 18 тогда:
+        вывести("Доступ для несовершеннолетних запрещён.")
+    иначе:
+        вывести("Добро пожаловать, ", имя, "!")
+    
+    создать таблица Посетители если_не_существует (
+        id       Целое первичный_ключ автоинкремент,
+        имя      Текст(200) не_null,
+        возраст  Целое,
+        посещён  Время по_умолчанию СЕЙЧАС()
+    )
+    
+    вставить в Посетители (имя, возраст)
+        значения (имя, возраст)
+    
+    вывести("✓ Сохранено в базе данных.")`,
+  zh: `#lingua: ZH
+
+函数 主():
+    变量 姓名 = 读取("输入姓名: ")
+    变量 年龄 = 读取整数("年龄: ")
+    
+    如果 年龄 < 0 或 年龄 > 150 则:
+        显示("无效年龄。")
+        返回
+    
+    如果 年龄 < 18 则:
+        显示("未成年人访问受限。")
+    否则:
+        显示("欢迎，", 姓名, "！")
+    
+    创建表 访客 若不存在 (
+        id     整数 主键 自动递增,
+        姓名   文本(200) 非空,
+        年龄   整数,
+        访问   时间 默认 当前时间()
+    )
+    
+    插入 访客 (姓名, 年龄)
+        值 (姓名, 年龄)
+    
+    显示("✓ 已保存到数据库。")`
+};
+
+const demoOutputs = {
+  en: { compile:"loc compile visitor_app.lo --target=x86_64", lang:"✓ Language detected: English (EN)", schema:"✓ Schema 'Visitors' statically validated", name:"Name: Ana Ionescu", age:"Age: 25", welcome:"Welcome, Ana Ionescu!", saved:"✓ Saved to database." },
+  ro: { compile:"loc compilare aplicatie_vizitatori.lo --target=x86_64", lang:"✓ Limbă detectată: Română (RO)", schema:"✓ Schema 'Vizitatori' validată static", name:"Nume: Ana Ionescu", age:"Vârstă: 25", welcome:"Bine ai venit, Ana Ionescu!", saved:"✓ Salvat în baza de date." },
+  fr: { compile:"loc compiler app_visiteurs.lo --target=x86_64", lang:"✓ Langue détectée : Français (FR)", schema:"✓ Schéma 'Visiteurs' validé statiquement", name:"Nom : Ana Ionescu", age:"Âge : 25", welcome:"Bienvenue, Ana Ionescu !", saved:"✓ Sauvegardé dans la base de données." },
+  de: { compile:"loc kompilieren besucher_app.lo --target=x86_64", lang:"✓ Sprache erkannt: Deutsch (DE)", schema:"✓ Schema 'Besucher' statisch validiert", name:"Name: Ana Ionescu", age:"Alter: 25", welcome:"Willkommen, Ana Ionescu!", saved:"✓ In Datenbank gespeichert." },
+  es: { compile:"loc compilar app_visitantes.lo --target=x86_64", lang:"✓ Idioma detectado: Español (ES)", schema:"✓ Esquema 'Visitantes' validado estáticamente", name:"Nombre: Ana Ionescu", age:"Edad: 25", welcome:"¡Bienvenida, Ana Ionescu!", saved:"✓ Guardado en la base de datos." },
+  ja: { compile:"loc コンパイル 訪問者アプリ.lo --target=x86_64", lang:"✓ 言語検出: 日本語 (JA)", schema:"✓ スキーマ '訪問者' 静的検証済み", name:"名前: Ana Ionescu", age:"年齢: 25", welcome:"ようこそ、Ana Ionescu！", saved:"✓ データベースに保存しました。" },
+  ru: { compile:"loc компилировать посетитель_app.lo --target=x86_64", lang:"✓ Язык определён: Русский (RU)", schema:"✓ Схема 'Посетители' статически проверена", name:"Имя: Ana Ionescu", age:"Возраст: 25", welcome:"Добро пожаловать, Ana Ionescu!", saved:"✓ Сохранено в базе данных." },
+  zh: { compile:"loc 编译 访客应用.lo --target=x86_64", lang:"✓ 检测到语言：中文 (ZH)", schema:"✓ 模式 '访客' 静态验证通过", name:"姓名: Ana Ionescu", age:"年龄: 25", welcome:"欢迎，Ana Ionescu！", saved:"✓ 已保存到数据库。" }
+};
+
+// ── Marquee (adăugat RU) ─────────────────────────────────
+const marqueeItems = [
+  {lang:"🇷🇴 RO", kw:"funcție",   word:"principală"},
+  {lang:"🇬🇧 EN", kw:"function",  word:"main"},
+  {lang:"🇫🇷 FR", kw:"fonction",  word:"principale"},
+  {lang:"🇩🇪 DE", kw:"Funktion",  word:"Haupt"},
+  {lang:"🇪🇸 ES", kw:"función",   word:"principal"},
+  {lang:"🇯🇵 JA", kw:"関数",       word:"メイン"},
+  {lang:"🇸🇦 AR", kw:"دالة",      word:"رئيسية"},
+  {lang:"🇨🇳 ZH", kw:"函数",       word:"主函数"},
+  {lang:"🇷🇺 RU", kw:"функция",   word:"главная"},
+  {lang:"🇧🇷 PT", kw:"função",    word:"principal"},
+  {lang:"🇮🇳 HI", kw:"फ़ंक्शन",     word:"मुख्य"},
+  {lang:"🇰🇷 KO", kw:"함수",       word:"메인"},
+  {lang:"🇮🇹 IT", kw:"funzione",  word:"principale"},
+  {lang:"🇵🇱 PL", kw:"funkcja",   word:"główna"},
+];
+const track = document.getElementById('marqueeTrack');
+const items = [...marqueeItems, ...marqueeItems];
+items.forEach(({lang, kw, word}) => {
+    const el = document.createElement('span');
+    el.className = 'marquee-item';
+    el.innerHTML = `<span>${lang}</span> <span class="kw">${kw}</span> ${word}() <span class="marquee-sep">·</span>`;
+    track.appendChild(el);
+});
+
+// ── i18n engine ───────────────────────────────────────────
+let currentLang = 'en';
+function setLang(lang, btn) {
+    if (lang === currentLang) return;
+    currentLang = lang;
+    document.querySelectorAll('.ls-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const t = i18n[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) el.innerHTML = t[key];
+    });
+    document.documentElement.lang = lang;
+}
+
+// ── Demo playground ───────────────────────────────────────
+function showCode(lang, btn) {
+    const codeEl = document.getElementById('demo-code');
+    codeEl.textContent = demoCodes[lang] || demoCodes['en'];
+    document.querySelectorAll('.pg-lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const out = demoOutputs[lang] || demoOutputs['en'];
+    document.getElementById('out-compile').textContent  = out.compile;
+    document.getElementById('out-lang').textContent     = out.lang;
+    document.getElementById('out-schema').textContent   = out.schema;
+    document.getElementById('out-name').textContent     = out.name;
+    document.getElementById('out-age').textContent      = out.age;
+    document.getElementById('out-welcome').textContent  = out.welcome;
+    document.getElementById('out-saved').textContent    = out.saved;
+}
+// Inițializare
+showCode('en', document.querySelector('.pg-lang-btn.active'));
+</script>
+
+</body>
+</html>
